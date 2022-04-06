@@ -1,11 +1,14 @@
 package com.example.pki.model;
 
+import com.example.pki.model.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -43,6 +46,16 @@ public class User implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public User(UserDTO userDto) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        setId(userDto.getId());
+        setEmail(userDto.getEmail());
+        setFirstName(userDto.getFirstName());
+        setPassword(passwordEncoder.encode(userDto.getPassword()));
+        setLastName(userDto.getLastName());
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -2,6 +2,7 @@ package com.example.pki.controller;
 
 import com.example.pki.model.User;
 import com.example.pki.model.dto.UserCredentials;
+import com.example.pki.model.dto.UserDTO;
 import com.example.pki.security.tokenUtils.JwtTokenUtils;
 import com.example.pki.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(value="/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        return userService.save(user);
+    public ResponseEntity<?> register(@RequestBody UserDTO userDto) {
+        return userService.save(userDto);
     }
 }
