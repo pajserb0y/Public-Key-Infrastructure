@@ -3,6 +3,7 @@ package com.example.pki.controller;
 import com.example.pki.model.User;
 import com.example.pki.model.dto.UserCredentials;
 import com.example.pki.model.dto.UserDTO;
+import com.example.pki.model.dto.UserTokenDTO;
 import com.example.pki.security.tokenUtils.JwtTokenUtils;
 import com.example.pki.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class AuthenticationController {
         User user = (User) auth.getPrincipal();
         String jwt = tokenUtils.generateToken(user.getEmail(), user.getRole());
 
-        return new ResponseEntity<>(jwt, HttpStatus.OK);
+        return new ResponseEntity<>(new UserTokenDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), jwt), HttpStatus.OK);
     }
 
     @PostMapping(value="/register")
