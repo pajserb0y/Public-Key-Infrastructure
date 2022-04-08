@@ -74,9 +74,9 @@ export class Login extends React.Component {
             console.log(email," ",password)) 
            .then(res => {
              localStorage.setItem("user", JSON.stringify(res.data));
-             this.props.history.push({
-                pathname: "/profile"
-             });
+             /* this.props.history.push({
+                pathname: "/"
+             }); */
            })
            .catch(res => alert("Bad Request!"));
   }
