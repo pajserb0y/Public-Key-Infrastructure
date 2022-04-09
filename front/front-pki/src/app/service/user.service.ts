@@ -27,7 +27,7 @@ export class UserService {
   logIn(credentials: Credentials): Observable<any> {
     const body=JSON.stringify(credentials);
     console.log(body)
-    return this._http.post(this._login, body)
+    return this._http.post(this._login, body, {responseType: 'text'})
   }
 
   private handleError(err : HttpErrorResponse) {
