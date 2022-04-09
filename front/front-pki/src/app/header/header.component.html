@@ -1,5 +1,5 @@
 <mat-toolbar color="primary" class="navbar">
-    <button mat-button style="font-size : 25px" (click)="reload()" [routerLink]="['']">PKI</button>
+    <button mat-button style="font-size : 25px" [routerLink]="['']">PKI</button>
     <button *ngIf="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER'|| role == 'ROLE_END_USER'"
              style="margin-left : 25px" mat-button [routerLink]="['all-certificates']">All Certificates</button>
     <button *ngIf="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER'"
