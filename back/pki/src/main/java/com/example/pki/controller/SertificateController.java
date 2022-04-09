@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Calendar;
 
 @RestController
-@RequestMapping(value = "api/certificates")
+@RequestMapping(value = "certificates")
 public class SertificateController {
 
     @Autowired
     private CertificateService certificateService;
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/issueRoot")
     public ResponseEntity<Void> issueRootCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         //certificateService.setDataGenerator(rootIntermediateDataGenerator);
@@ -29,4 +29,6 @@ public class SertificateController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+
 }

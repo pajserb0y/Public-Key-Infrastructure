@@ -1,22 +1,25 @@
-package com.example.pki.model.data;
+package com.example.pki.model;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import javax.persistence.*;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertificateDataDTO {
-    private String issuerAlias;
+public class Certificate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
+    private String serialNumber;
     private String cn;
+    @Column(name = "org_name")
     private String on;
     private String ou;
     private String surname;
@@ -24,12 +27,14 @@ public class CertificateDataDTO {
     private String o;
     private String c;
     private String e;
-//    private String s;
+    //    private String s;
 //    @JsonIgnore
+    @Column(unique = true)
     private String subjectAlias;
     private String startDate;
     private String endDate;
     private String jksPass;
-//    private ArrayList<Boolean> keyUsage;
 
+    @ManyToOne
+    private Certificate issuer;
 }
