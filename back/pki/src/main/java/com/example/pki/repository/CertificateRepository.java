@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface CertificateRepository extends JpaRepository<CertificateInDatabase, Long> {
 
     CertificateInDatabase findBySubjectAlias(String issuerAlias);
@@ -16,4 +18,9 @@ public interface CertificateRepository extends JpaRepository<CertificateInDataba
 
     @Query("SELECT c.subjectAlias FROM CertificateInDatabase c WHERE c.serialNumber = :serialNumber")
     String getAliasForCertificate(@Param("serialNumber") String serialNumber);
+    
+    @Query("SELECT c FROM CertificateInDatabase c WHERE c.type = 1 or c.type = 2")
+    List<CertificateInDatabase> findAllCAs();
+
+    List<CertificateInDatabase> findByE(String email);
 }
