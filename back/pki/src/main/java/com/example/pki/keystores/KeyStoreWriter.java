@@ -55,7 +55,15 @@ public class KeyStoreWriter {
 		} catch (CertificateException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			try {
+				keyStore.load(null, password);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} catch (NoSuchAlgorithmException ex) {
+				ex.printStackTrace();
+			} catch (CertificateException ex) {
+				ex.printStackTrace();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

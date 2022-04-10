@@ -32,5 +32,6 @@ public class CertificateDataDTO {
     private String endDate;
     private String jksPass;
     private List<Integer> keyUsages;
+    private Integer type;
 
 }

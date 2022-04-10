@@ -36,6 +36,7 @@ public class CertificateInDatabase {
     private String endDate;
     private String jksPass;
     private boolean isRevoked;
+    private Integer type;
 
     @ManyToOne
     private CertificateInDatabase issuer;

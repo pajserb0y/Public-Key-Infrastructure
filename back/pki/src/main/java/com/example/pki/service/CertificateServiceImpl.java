@@ -59,11 +59,12 @@ public class CertificateServiceImpl implements CertificateService {
             if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
                 certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                         certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(),
-                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false, null));
+                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false,
+                        certificateDataDTO.getType(), null));
             else    //sub
                 certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                         certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(),
-                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false,
+                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false, certificateDataDTO.getType(),
                         certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
 
             //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
