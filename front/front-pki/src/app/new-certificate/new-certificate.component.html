@@ -30,13 +30,7 @@
                   <mat-hint *ngIf="newCertificate.country == ''">Required</mat-hint>
                 </mat-form-field>
               </li>
-              <li>
-                <mat-form-field appearance="fill">
-                  <mat-label>State/province</mat-label>
-                  <input matInput type="text" name="state" [(ngModel)]="newCertificate.state" required>
-                  <mat-hint *ngIf="newCertificate.state == ''">Required</mat-hint>
-                </mat-form-field>
-              </li>
+             
               <li>
                 <mat-form-field appearance="fill">
                   <mat-label>Organization</mat-label>
@@ -44,6 +38,15 @@
                   <mat-hint *ngIf="newCertificate.organization == ''">Required</mat-hint>
                 </mat-form-field>
               </li>
+
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Organization Unit</mat-label>
+                  <input matInput type="text" name="organizationUnit" [(ngModel)]="newCertificate.organizationUnit" required>
+                  <mat-hint *ngIf="newCertificate.organizationUnit == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
               <li>
                 <mat-form-field appearance="fill">
                   <mat-label>Common name</mat-label>
@@ -203,6 +206,6 @@
               
             </ul>
             <div>
-              <button mat-button onclick="submitCertificate(newCertificate)"  color="primary">CREATE</button>
+              <button mat-button (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
             </div>
   

@@ -2,6 +2,7 @@ package com.example.pki.mapper;
 
 import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.CertificateDataDTO;
+import com.example.pki.model.dto.CertificateDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class CertificateAdapter {
         return dtos;
     }
 
-    private static CertificateDataDTO covertToDto(CertificateInDatabase cert) {
+    public static CertificateDataDTO covertToDto(CertificateInDatabase cert) {
         CertificateDataDTO dto = new CertificateDataDTO();
 
         dto.setC(cert.getC());
@@ -30,6 +31,26 @@ public class CertificateAdapter {
         dto.setStartDate(cert.getStartDate());
         dto.setSubjectAlias(cert.getSubjectAlias());
         dto.setSurname(cert.getSurname());
+
+        return dto;
+    }
+
+    public static CertificateDataDTO covertDtoToDataDto(CertificateDTO certDTO) {
+        CertificateDataDTO dto = new CertificateDataDTO();
+
+        dto.setC(certDTO.getCountry());
+        dto.setCn(certDTO.getCommonName());
+        dto.setE(certDTO.getEmail());
+        dto.setGivenName("");
+        dto.setEndDate(certDTO.getEndDate().toString());
+        dto.setIssuerAlias(certDTO.getIssuer());
+        dto.setJksPass("");
+        dto.setO(certDTO.getOrganization());
+        dto.setOn("");
+        dto.setOu(certDTO.getOrganizationUnit());
+        dto.setStartDate(certDTO.getStartDate().toString());
+        dto.setSubjectAlias("");
+        dto.setSurname(certDTO.getSurname());
 
         return dto;
     }

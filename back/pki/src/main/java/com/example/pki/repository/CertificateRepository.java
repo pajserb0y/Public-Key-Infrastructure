@@ -13,4 +13,7 @@ public interface CertificateRepository extends JpaRepository<CertificateInDataba
     @Modifying
     @Query("UPDATE CertificateInDatabase s SET s.isRevoked = true WHERE s.subjectAlias = :alias")
     void revokeCertificate(@Param("alias") String alias);
+
+    @Query("SELECT c.subjectAlias FROM CertificateInDatabase c WHERE c.serialNumber = :serialNumber")
+    String getAliasForCertificate(@Param("serialNumber") String serialNumber);
 }

@@ -14,16 +14,26 @@ export class NewCertificateComponent implements OnInit {
   CACertificates : Certificate[] = [];
  @Input() newCertificate : Certificate = {
     issuer: '',
-    serialNumber: 0,
+    serialNumber: '',
     country: '',
-    state: '',
+    organizationUnit: '',
     organization: '',
     surname: '',
     commonName: '',
     email: '',
-    startDate: '',
-    endDate: '',
-    keyUsage: [],
+    startDate: new Date(),
+    endDate:  new Date(),
+    keyUsage: {
+      certificateSigning: false,
+      crlSign: false,
+      dataEncipherment: false,
+      decipherOnly: false,
+      digitalSignature: false,
+      encipherOnly: false,
+      keyAgreement: false,
+      keyEncipherment: false,
+      nonRepudiation: false,
+    },
     certificateType: 1
   };
   
@@ -90,9 +100,12 @@ export class NewCertificateComponent implements OnInit {
         .subscribe(CAcerts => this.CACertificates = CAcerts,
                     error => this.errorMessage = <any>error); 
   }
+
   submitCertificate(certificate : Certificate)
   {
-    this._certificateService.submitCertificate(certificate); 
+    this._certificateService.submitCertificate(certificate)
+      .subscribe(() => {},
+        error => this.errorMessage = <any>error);
   }
 }
 

@@ -97,8 +97,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void revoke(String alias) throws KeyStoreException, CertificateEncodingException {
+    public void revoke(String serialNumber) throws KeyStoreException, CertificateEncodingException {
         KeyStoreWriter writer = new KeyStoreWriter();
+
+        String alias = certificateRepository.getAliasForCertificate(serialNumber);
 
         writer.loadKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
         List<Certificate> subCerts = writer.findAllSubs(alias);

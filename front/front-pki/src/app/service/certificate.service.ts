@@ -13,10 +13,11 @@ export class CertificateService {
 
 
 
-  private _certificates = '/api/certificates';
+  private _certificates = 'http://localhost:8080/certificates';
   private _allCertificatesForUser = this._certificates + '/allCertificatesForUser/';
   private _createCertificate = this._certificates + '/createCertificates';
   private _getAllCACertificates = this._certificates + '/getAllCACertificates';
+  private _allCertificates = this._certificates + '/getAllCertificates'
   private _submitCertificate = this._certificates + '/newCertificate';
   private _revokeCertificate = this._certificates + '/revokeCertificate';
   private _downloadCertificate = this._certificates + '/downloadCertificate';
@@ -43,10 +44,10 @@ export class CertificateService {
     .catch(this.handleError);
   }
 
-  submitCertificate(certificate : Certificate) {
+  submitCertificate(certificate : Certificate) : Observable<any> {
     const body=JSON.stringify(certificate);
     console.log(body)
-     this._http.post(this._submitCertificate, body)
+    return this._http.post(this._submitCertificate, body)
   }
 
   revokeCertificate(certificate: Certificate) : Observable<any>{
@@ -59,6 +60,13 @@ export class CertificateService {
     const body=JSON.stringify(certificate);
     console.log(body);
     return this._http.post(this._downloadCertificate, body)
+  }
+
+  getAllCertificates()
+  {
+    return this._http.get<Certificate[]>(this._allCertificates)
+                      .pipe(tap(data =>  console.log('Iz service-a: ', data)),
+                      catchError(this.handleError));
   }
 
   private handleError(err : HttpErrorResponse) {
