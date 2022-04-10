@@ -4,6 +4,8 @@ import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.service.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.KeyStoreException;
 import java.security.cert.CertificateEncodingException;
+import java.util.Calendar;
 import java.util.List;
 
 @RestController
@@ -50,5 +53,23 @@ public class CertificateController {
     @PostMapping("/allCertificatesForUser/{email}")
     public ResponseEntity<List<CertificateDTO>> allCertificatesForUser(@PathVariable String email) {
         return new ResponseEntity<>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_admin', 'ROLE_user')")
+    @PostMapping("/download")
+    public ResponseEntity<Resource> downloadCertificate(@RequestBody CertificateDTO certToDownload) {
+
+        Resource file = null;
+
+        try {
+            file = certificateService.getCertificateToDownload(certToDownload);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"certificate.cer\"")
+                    .body(file);
+        } catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"null\"")
+                    .body(file);
+        }
     }
 }
