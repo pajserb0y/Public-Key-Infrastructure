@@ -59,17 +59,21 @@ public class CertificateServiceImpl implements CertificateService {
             writer.saveKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
 
             //Database
+        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+        try {
             if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
-                certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
-                        certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(),
-                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false,
-                        certificateDataDTO.getType(), null));
+                    certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
+                            certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
+                            certificateDataDTO.getSubjectAlias(), iso8601Formater.parse(certificateDataDTO.getStartDate()), iso8601Formater.parse(certificateDataDTO.getEndDate()),
+                            certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(), null));
             else    //sub
                 certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
-                        certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(),
-                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(),
-                        certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
-
+                        certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
+                        certificateDataDTO.getSubjectAlias(), iso8601Formater.parse(certificateDataDTO.getStartDate()), iso8601Formater.parse(certificateDataDTO.getEndDate()),
+                        certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(), certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
             //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
     }
 

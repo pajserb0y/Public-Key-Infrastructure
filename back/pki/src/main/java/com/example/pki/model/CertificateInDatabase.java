@@ -35,10 +35,11 @@ public class CertificateInDatabase {
     private String subjectAlias;
     private Date startDate;
     private Date endDate;
-    private String jksPass;
+    private String keyPass;
     private boolean isRevoked;
     private Integer type;
 
     @ManyToOne
     private CertificateInDatabase issuer;
+
 }

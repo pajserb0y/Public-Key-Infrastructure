@@ -3,7 +3,6 @@ package com.example.pki.mapper;
 import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
-import com.example.pki.model.dto.KeyUsageDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class CertificateAdapter {
         dto.setGivenName(cert.getGivenName());
         dto.setEndDate(cert.getEndDate().toString());
         dto.setIssuerAlias(cert.getIssuer().getSubjectAlias());
-        dto.setKeyPass(cert.getJksPass());
+        dto.setKeyPass(cert.getKeyPass());
         dto.setO(cert.getO());
         dto.setOn(cert.getOn());
         dto.setOu(cert.getOu());
