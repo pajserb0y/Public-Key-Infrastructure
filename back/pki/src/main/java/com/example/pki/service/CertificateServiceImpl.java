@@ -58,12 +58,12 @@ public class CertificateServiceImpl implements CertificateService {
             if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
                 certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                         certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
-                        certificateDataDTO.getSubjectAlias(), new Date(certificateDataDTO.getStartDate()), new Date(certificateDataDTO.getEndDate()), certificateDataDTO.getJksPass(), false,
+                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false,
                         certificateDataDTO.getType(), null));
             else    //sub
                 certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                         certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
-                        certificateDataDTO.getSubjectAlias(), new Date(certificateDataDTO.getStartDate()), new Date(certificateDataDTO.getEndDate()), certificateDataDTO.getJksPass(), false, certificateDataDTO.getType(),
+                        certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getJksPass(), false, certificateDataDTO.getType(),
                         certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
 
             //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
@@ -156,13 +156,13 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private SubjectData generateSubjectData(CertificateDataDTO dto, PublicKey publicKey) {
-        try {
+        //try {
             //KeyPair keyPairSubject = generateKeyPair();
 
             //Datumi od kad do kad vazi sertifikat
-            SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
-            Date startDate = iso8601Formater.parse(dto.getStartDate());
-            Date endDate = iso8601Formater.parse(dto.getEndDate());
+            //SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+            //Date startDate = iso8601Formater.format(dto.getStartDate().toString());
+            // Date endDate = iso8601Formater.parse(dto.getEndDate());
 
             //Serijski broj sertifikata
             Random randNum = new Random();
@@ -185,11 +185,11 @@ public class CertificateServiceImpl implements CertificateService {
             // - podatke o vlasniku
             // - serijski broj sertifikata
             // - od kada do kada vazi sertifikat
-            return new SubjectData(publicKey, builder.build(), serialNumber.toString(), startDate, endDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+            return new SubjectData(publicKey, builder.build(), serialNumber.toString(), dto.getStartDate(), dto.getEndDate());
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+    //    return null;
     }
 
     private KeyPair generateKeyPair() {

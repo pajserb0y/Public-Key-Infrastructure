@@ -29,8 +29,8 @@ public class CertificateDataDTO {
     private String s;
 //    @JsonIgnore
     private String subjectAlias;
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
     private String jksPass;
     private List<Integer> keyUsages;
     private Integer type;

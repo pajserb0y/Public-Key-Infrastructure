@@ -6,8 +6,8 @@
       <mat-stepper orientation="vertical" linear #stepper >
         <mat-step label="Fill in certificate info">
         <mat-radio-group  [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
-            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" value="1">Root Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="2">Intermediate Certificate</mat-radio-button>
+            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" checked="true" value="1">Root Certificate</mat-radio-button>
+            <mat-radio-button *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
             <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
           </mat-radio-group> 
             

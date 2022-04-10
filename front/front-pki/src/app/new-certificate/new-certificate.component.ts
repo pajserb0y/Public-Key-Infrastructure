@@ -37,7 +37,7 @@ export class NewCertificateComponent implements OnInit {
     certificateType: 1
   };
   
-  role : string | null = localStorage.getItem('role');
+  role : string = localStorage.getItem('role') || '';
   errorMessage : string = '';
 
   minDate : Date = new Date();
@@ -58,6 +58,7 @@ export class NewCertificateComponent implements OnInit {
     this.initKeyUsageForm();
     this.initExtendedKeyUsageForm();
     this.getAllCACertificates();
+    this.newCertificate.certificateType = 1;
   }
 
   checkAvailability()
