@@ -43,12 +43,12 @@ public class CertificateController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/getAllCACertificates")
     public ResponseEntity<List<CertificateDTO>> getAllCACertificates() {
-        return new ResponseEntity<List<CertificateDTO>>(certificateService.getAllCACertificates(), HttpStatus.OK);
+        return new ResponseEntity<>(certificateService.getAllValidCACertificates(), HttpStatus.OK);
     }
 
 
     @PostMapping("/allCertificatesForUser/{email}")
     public ResponseEntity<List<CertificateDTO>> allCertificatesForUser(@PathVariable String email) {
-        return new ResponseEntity<List<CertificateDTO>>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
+        return new ResponseEntity<>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
     }
 }

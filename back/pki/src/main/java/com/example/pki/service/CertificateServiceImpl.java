@@ -102,8 +102,15 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<CertificateDTO> getAllCACertificates() {
-        return CertificateAdapter.convertToCertDTOList(certificateRepository.findAllCAs());
+    public List<CertificateDTO> getAllValidCACertificates() {
+        List<CertificateInDatabase> validCerts = new ArrayList<>();
+        KeyStoreReader reader = new KeyStoreReader();
+        for(CertificateInDatabase cert : certificateRepository.findAllCAs()) {
+            if(reader.isValid((X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias())))
+                validCerts.add(cert);
+        }
+
+        return CertificateAdapter.convertToCertDTOList(validCerts);
     }
 
     @Override

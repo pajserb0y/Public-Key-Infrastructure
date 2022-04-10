@@ -14,7 +14,7 @@ public interface CertificateService {
 
     void revoke(String alias) throws KeyStoreException, CertificateEncodingException;
 
-    List<CertificateDTO> getAllCACertificates();
+    List<CertificateDTO> getAllValidCACertificates();
 
     List<CertificateDTO> allCertificatesForUser(String email);
 }
