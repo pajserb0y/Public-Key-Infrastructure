@@ -23,7 +23,7 @@ public class CertificateAdapter {
         dto.setGivenName(cert.getGivenName());
         dto.setEndDate(cert.getEndDate());
         dto.setIssuerAlias(cert.getIssuer().getSubjectAlias());
-        dto.setJksPass(cert.getJksPass());
+        dto.setKeyPass(cert.getJksPass());
         dto.setO(cert.getO());
         dto.setOn(cert.getOn());
         dto.setOu(cert.getOu());
