@@ -5,13 +5,11 @@ import com.example.pki.service.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
+import javax.websocket.server.PathParam;
+import java.security.KeyStoreException;
+import java.security.cert.CertificateEncodingException;
 
 @RestController
 @RequestMapping(value = "certificates")
@@ -23,12 +21,20 @@ public class SertificateController {
 
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/issueRoot")
-    public ResponseEntity<Void> issueRootCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
+    public ResponseEntity<?> issueRootCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         //certificateService.setDataGenerator(rootIntermediateDataGenerator);
-        certificateService.issueRootCertificate(certificateDataDTO);
-
+        certificateService.issueCertificate(certificateDataDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAll() {
+        return new ResponseEntity<>(certificateService.getAll(), HttpStatus.CREATED);
+    }
 
+    @PutMapping("/revoke/{alias}")
+    public ResponseEntity<?> revoke(@PathVariable String alias) throws CertificateEncodingException, KeyStoreException {
+        certificateService.revoke(alias);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

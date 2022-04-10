@@ -4,9 +4,14 @@ import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import com.example.pki.model.data.IssuerData;
 import com.example.pki.model.data.SubjectData;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -19,7 +24,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 public class CertificateGenerator {
 	public CertificateGenerator() {}
 	
-	public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData) {
+	public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, List<Integer> keyUsages) {
 		try {
 			//Posto klasa za generisanje sertifiakta ne moze da primi direktno privatni kljuc pravi se builder za objekat
 			//Ovaj objekat sadrzi privatni kljuc izdavaoca sertifikata i koristiti se za potpisivanje sertifikata
@@ -39,7 +44,10 @@ public class CertificateGenerator {
 					subjectData.getX500name(),
 					subjectData.getPublicKey());
 
-			//TODO: ekstenzije
+			//TODO: ekstenzije, staviti na frontu koji broj je koji KeyUsage
+			for (int usage : keyUsages)
+				certGen.addExtension(Extension.keyUsage, true, new KeyUsage(usage));
+			//BasicConstraints
 
 			//Generise se sertifikat
 			X509CertificateHolder certHolder = certGen.build(contentSigner);
@@ -60,6 +68,8 @@ public class CertificateGenerator {
 		} catch (OperatorCreationException e) {
 			e.printStackTrace();
 		} catch (CertificateException e) {
+			e.printStackTrace();
+		} catch (CertIOException e) {
 			e.printStackTrace();
 		}
 		return null;

@@ -8,11 +8,12 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "certificates")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Certificate {
+public class CertificateInDatabase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,7 +35,8 @@ public class Certificate {
     private String startDate;
     private String endDate;
     private String jksPass;
+    private boolean isRevoked;
 
     @ManyToOne
-    private Certificate issuer;
+    private CertificateInDatabase issuer;
 }

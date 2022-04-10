@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -30,6 +31,6 @@ public class CertificateDataDTO {
     private String startDate;
     private String endDate;
     private String jksPass;
-//    private ArrayList<Boolean> keyUsage;
+    private List<Integer> keyUsages;
 
 }
