@@ -16,7 +16,7 @@ public interface CertificateRepository extends JpaRepository<CertificateInDataba
     @Query("UPDATE CertificateInDatabase s SET s.isRevoked = true WHERE s.subjectAlias = :alias")
     void revokeCertificate(@Param("alias") String alias);
 
-    @Query("SELECT * FROM CertificateInDatabase c WHERE c.type == 1 || c.type == 2")
+    @Query("SELECT c FROM CertificateInDatabase c WHERE c.type = 1 or c.type = 2")
     List<CertificateInDatabase> findAllCAs();
 
     List<CertificateInDatabase> findByE(String email);
