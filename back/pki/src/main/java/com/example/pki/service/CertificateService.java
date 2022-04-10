@@ -2,6 +2,7 @@ package com.example.pki.service;
 
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
+import org.springframework.core.io.Resource;
 
 import java.security.KeyStoreException;
 import java.security.cert.CertificateEncodingException;
@@ -17,4 +18,6 @@ public interface CertificateService {
     List<CertificateDTO> getAllCACertificates();
 
     List<CertificateDTO> allCertificatesForUser(String email);
+
+    Resource getCertificateToDownload(CertificateDTO certToDownload);
 }

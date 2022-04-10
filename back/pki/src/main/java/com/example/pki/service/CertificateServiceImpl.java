@@ -10,6 +10,7 @@ import com.example.pki.model.data.IssuerData;
 import com.example.pki.model.data.SubjectData;
 import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.repository.CertificateRepository;
+import com.example.pki.util.Base64Utility;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -17,6 +18,8 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.Certificate;
@@ -109,6 +112,20 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<CertificateDTO> allCertificatesForUser(String email) {
         return CertificateAdapter.convertToCertDTOList(certificateRepository.findByE(email));
+    }
+
+    @Override
+    public Resource getCertificateToDownload(CertificateDTO certToDownload) {
+        try {
+            KeyStoreReader reader = new KeyStoreReader();
+            X509Certificate cert = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, certificateRepository.getAliasFromSerialNumber(certToDownload.getSerialNumber()));
+            String digitalSignature = Base64Utility.encode(cert.getEncoded());
+
+            return new ByteArrayResource(digitalSignature.getBytes());
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private List<CertificateInDatabase> filterValid(List<CertificateInDatabase> certificates) {
