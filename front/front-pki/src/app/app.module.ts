@@ -51,6 +51,7 @@ import { CommonModule } from '@angular/common';
 import { AllCertificatesComponent } from './all-certificates/all-certificates.component';
 import { MatTableModule } from '@angular/material/table';
 import { NewCertificateComponent } from './new-certificate/new-certificate.component';
+import { DetailsDialogComponent } from './details-dialog/details-dialog.component';
 
 
 const MaterialComponents = [
@@ -90,7 +91,8 @@ const MaterialComponents = [
     RegistrationPageComponent,
     LoginPageComponent,
     AllCertificatesComponent,
-    NewCertificateComponent
+    NewCertificateComponent,
+    DetailsDialogComponent
    // UserProfileComponent
   ],
   imports: [

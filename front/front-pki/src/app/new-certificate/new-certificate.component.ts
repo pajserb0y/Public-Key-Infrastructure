@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service'
@@ -12,7 +12,7 @@ import { CertificateService } from '../service/certificate.service'
 export class NewCertificateComponent implements OnInit {
 
   CACertificates : Certificate[] = [];
-  newCertificate : Certificate = {
+ @Input() newCertificate : Certificate = {
     issuer: '',
     serialNumber: 0,
     country: '',
@@ -23,9 +23,10 @@ export class NewCertificateComponent implements OnInit {
     email: '',
     startDate: '',
     endDate: '',
-    keyUsage: []
+    keyUsage: [],
+    certificateType: 1
   };
-  certificateType : number = 1;
+  
   role : string | null = localStorage.getItem('role');
   errorMessage : string = '';
 

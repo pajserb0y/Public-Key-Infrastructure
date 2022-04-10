@@ -5,9 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import {MatSort, Sort} from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
 
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service';
+import { DetailsDialogComponent } from '../details-dialog/details-dialog.component';
 
 
 @Component({
@@ -22,11 +24,11 @@ export class AllCertificatesComponent implements OnInit {
   errorMessage : string  = '';
   certificates: Certificate[] = []
  
-  role : string|null = localStorage.getItem('role');
+  role : string = localStorage.getItem('role') || '';
   
 
-  constructor(private _certificateService: CertificateService, private router: Router, private _snackBar: MatSnackBar) { }
-  email: string|null = localStorage.getItem('email');
+  constructor(private _certificateService: CertificateService, private router: Router, private _snackBar: MatSnackBar, public dialog: MatDialog) { }
+  email: string = localStorage.getItem('email') || '' ;
 
 
   ngOnInit(): void {
@@ -36,20 +38,25 @@ export class AllCertificatesComponent implements OnInit {
 
   revoke(certificate :Certificate)
   {
-
+    this._certificateService.revokeCertificate(certificate)
+        .subscribe(data =>  this.certificates = data,
+                   error => this.errorMessage = <any>error);
   }
 
   viewDetails(certificate :Certificate)
   {
-
+    const dialogRef = this.dialog.open(DetailsDialogComponent, {
+      width: '1000px',
+      data: {certificate: certificate},
+    });
   }
 
   download(certificate :Certificate)
   {
-
+    this._certificateService.downloadCertificate(certificate);
   }
 
-  getAllCertificatesForUser(email :String|null)
+  getAllCertificatesForUser(email :String)
   {
     this._certificateService.getAllCertificatesForUser(email)
         .subscribe(data =>  this.certificates = data,
