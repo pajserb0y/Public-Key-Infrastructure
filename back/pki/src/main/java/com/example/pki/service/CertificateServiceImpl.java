@@ -8,6 +8,7 @@ import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.data.IssuerData;
 import com.example.pki.model.data.SubjectData;
+import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.repository.CertificateRepository;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -26,9 +27,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
@@ -96,6 +95,26 @@ public class CertificateServiceImpl implements CertificateService {
                 String subjectAlias = IETFUtils.valueToString(subjectAliasRDN.getFirst().getValue());
                 revoke(subjectAlias);
             }
+    }
+
+    @Override
+    public List<CertificateDTO> getAllCACertificates() {
+        return CertificateAdapter.convertToCertDTOList(certificateRepository.findAllCAs());
+    }
+
+    @Override
+    public List<CertificateDTO> allCertificatesForUser(String email) {
+        return CertificateAdapter.convertToCertDTOList(certificateRepository.findByE(email));
+    }
+
+    private List<CertificateInDatabase> filterValid(List<CertificateInDatabase> certificates) {
+        ArrayList<CertificateInDatabase> result = new ArrayList<CertificateInDatabase>();
+
+        for(CertificateInDatabase cert : certificates){
+            // Odraditi proveru validnosti sertifikata
+        }
+
+        return result;
     }
 
     private IssuerData generateRootIssuerData(CertificateDataDTO dto, PrivateKey issuerKey) {

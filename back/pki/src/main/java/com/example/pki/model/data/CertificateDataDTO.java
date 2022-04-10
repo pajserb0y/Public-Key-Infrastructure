@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter
@@ -22,7 +21,7 @@ public class CertificateDataDTO {
     private String o;
     private String c;
     private String e;
-//    private String s;
+    private String s;
 //    @JsonIgnore
     private String subjectAlias;
     private String startDate;
