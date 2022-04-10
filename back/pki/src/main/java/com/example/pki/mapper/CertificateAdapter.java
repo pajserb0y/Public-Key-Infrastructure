@@ -16,6 +16,13 @@ public class CertificateAdapter {
         return dtos;
     }
 
+    public static List<CertificateDTO> convertToCertDTOList(List<CertificateInDatabase> certs) {
+        List<CertificateDTO> dtos = new ArrayList<>();
+        for (CertificateInDatabase cert : certs)
+            dtos.add(covertCertToDto(cert));
+        return dtos;
+    }
+
 
     private static CertificateDTO covertCertToDto(CertificateInDatabase cert) {
         CertificateDTO dto = new CertificateDTO();

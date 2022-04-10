@@ -31,6 +31,7 @@ public class CertificateController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/getAllCertificates")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(certificateService.getAll(), HttpStatus.OK);
@@ -42,7 +43,7 @@ public class CertificateController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER')")
     @GetMapping("/getAllCACertificates")
     public ResponseEntity<List<CertificateDTO>> getAllCACertificates() {
         return new ResponseEntity<List<CertificateDTO>>(certificateService.getAllCACertificates(), HttpStatus.OK);
