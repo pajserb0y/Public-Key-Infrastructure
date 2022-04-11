@@ -35,7 +35,7 @@ public class CertificateController {
     @PostMapping("/newCertificate")
     public ResponseEntity<?> newCertificate(@RequestBody CertificateDTO certificateDTO) {
         CertificateDataDTO certificateDataDTO = CertificateAdapter.covertDtoToDataDto(certificateDTO);
-        certificateService.issueCertificate(certificateDataDTO);
+        certificateService.issueCertificate(certificateDataDTO, certificateDTO.getKeyUsage());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     //Certificate Signing, Off-line CRL Signing, CRL Signing (06)
@@ -59,10 +59,9 @@ public class CertificateController {
     }
 
 
-    @PostMapping("/allCertificatesForUser/{email}")
+    @GetMapping("/allCertificatesForUser/{email}")
     public ResponseEntity<List<CertificateDTO>> allCertificatesForUser(@PathVariable String email) {
-
-        return new ResponseEntity<List<CertificateDTO>>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
+        return new ResponseEntity<>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
 
     }
 

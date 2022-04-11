@@ -1,5 +1,6 @@
 package com.example.pki.model;
 
+import com.example.pki.model.dto.KeyUsageDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,4 +48,7 @@ public class CertificateInDatabase {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private KeyUsageDTO usages;
 }

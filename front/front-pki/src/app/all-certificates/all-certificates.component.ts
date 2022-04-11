@@ -76,7 +76,8 @@ export class AllCertificatesComponent implements OnInit {
 
   getAllCertificatesForUser(email :String)
   {
-    this._certificateService.getAllCertificatesForUser(email)
+    let email1 = localStorage.getItem('email') || '' ;
+    this._certificateService.getAllCertificatesForUser(email1)
         .subscribe(data =>  this.certificates = data,
                    error => this.errorMessage = <any>error); 
   }

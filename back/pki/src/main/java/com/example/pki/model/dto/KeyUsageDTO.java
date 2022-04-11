@@ -8,14 +8,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-//@Entity
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeyUsageDTO {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private boolean certificateSigning;
     private boolean crlSign;
     private boolean dataEncipherment;
@@ -25,6 +30,4 @@ public class KeyUsageDTO {
     private boolean keyAgreement;
     private boolean keyEncipherment;
     private boolean nonRepudiation;
-
-//    private Set<CertificateInDatabase>
 }

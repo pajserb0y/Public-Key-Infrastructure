@@ -28,7 +28,8 @@ public interface CertificateRepository extends JpaRepository<CertificateInDataba
     @Query("SELECT c FROM CertificateInDatabase c WHERE c.type = 1 OR c.type = 2 AND cast(NOW() as timestamp) BETWEEN c.startDate and c.endDate AND s.isRevoked = false")
     List<CertificateInDatabase> findAllCAs();
 
-    List<CertificateInDatabase> getByE(String email);
+    @Query("SELECT c FROM CertificateInDatabase c WHERE c.e = :e")
+    List<CertificateInDatabase> getByE(@Param("e") String email);
 
     @Query("SELECT c FROM CertificateInDatabase c WHERE c.isRevoked = false")
     List<CertificateInDatabase> findAllNotRevoked();

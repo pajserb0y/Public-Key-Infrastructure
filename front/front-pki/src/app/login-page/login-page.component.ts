@@ -41,7 +41,7 @@ export class LoginPageComponent implements OnInit {
       data => {
         localStorage.setItem('jwtToken', data)
         let tokeninfo = this.getDecodedAccessToken(data)
-        localStorage.setItem('email', tokeninfo.id)
+        localStorage.setItem('email', tokeninfo.email)
         localStorage.setItem('role', tokeninfo.role)
         console.log('Dobioooooooooooo: ', this.userDto)
         this.router.navigateByUrl('/all-certificates').then(() => {

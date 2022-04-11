@@ -9,6 +9,7 @@ import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.data.IssuerData;
 import com.example.pki.model.data.SubjectData;
 import com.example.pki.model.dto.CertificateDTO;
+import com.example.pki.model.dto.KeyUsageDTO;
 import com.example.pki.repository.CertificateRepository;
 import com.example.pki.repository.UserRepository;
 import com.example.pki.util.Base64Utility;
@@ -44,7 +45,7 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     @Override
-    public void issueCertificate(CertificateDataDTO certificateDataDTO) {
+    public void issueCertificate(CertificateDataDTO certificateDataDTO, KeyUsageDTO keyUsage) {
         certificateDataDTO.setIssuerAlias(certificateRepository.getAliasForCertificate(certificateDataDTO.getIssuerAlias()));
         KeyStoreReader reader = new KeyStoreReader();
         KeyPair keyPairIssuer = generateKeyPair();
@@ -66,18 +67,20 @@ public class CertificateServiceImpl implements CertificateService {
         writer.saveKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
 
         //Database
-        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+//        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+        KeyUsageDTO usage = new KeyUsageDTO(keyUsage.getId(), keyUsage.isCertificateSigning(), keyUsage.isCrlSign(), keyUsage.isDataEncipherment(), keyUsage.isDecipherOnly(),
+                keyUsage.isDigitalSignature(), keyUsage.isEncipherOnly(), keyUsage.isKeyAgreement(), keyUsage.isKeyEncipherment(), keyUsage.isNonRepudiation());
 
         if (certificateDataDTO.getIssuerAlias() == null)   //root
             certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                     certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
                     certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false,
-                    certificateDataDTO.getType(), null, userRepository.findByEmail(certificateDataDTO.getE())));
+                    certificateDataDTO.getType(), null, userRepository.findByEmail(certificateDataDTO.getE()), usage));
         else    //sub
             certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                     certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
                     certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(),
-                    certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias()), userRepository.findByEmail(certificateDataDTO.getE())));
+                    certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias()), userRepository.findByEmail(certificateDataDTO.getE()), usage));
 
         //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
 
