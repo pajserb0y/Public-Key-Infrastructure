@@ -108,10 +108,6 @@ export class NewCertificateComponent implements OnInit {
   {
     certificate.startDate = this.rangeTerm.value.startDate;
     certificate.endDate = this.rangeTerm.value.endDate;
-    if(certificate.certificateType == 1) {
-      certificate.keyUsage.certificateSigning = true
-      certificate.keyUsage.crlSign = true
-    }
     this._certificateService.submitCertificate(certificate)
       .subscribe(() => {},
         error => this.errorMessage = <any>error);
