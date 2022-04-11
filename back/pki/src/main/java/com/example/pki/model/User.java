@@ -11,9 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -40,12 +38,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-//    @Enumerated(EnumType.ORDINAL)
-//    private Role role;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<CertificateInDatabase> certifications = new HashSet<>();
+
+
 
     public User(UserDTO userDto) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

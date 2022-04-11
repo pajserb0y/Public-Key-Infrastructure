@@ -44,4 +44,7 @@ public class CertificateInDatabase {
     @ManyToOne
     private CertificateInDatabase issuer;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

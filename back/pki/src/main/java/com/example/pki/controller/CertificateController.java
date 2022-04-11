@@ -3,6 +3,7 @@ package com.example.pki.controller;
 import com.example.pki.mapper.CertificateAdapter;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
+import com.example.pki.repository.CertificateRepository;
 import com.example.pki.service.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -26,6 +27,8 @@ public class CertificateController {
 
     @Autowired
     private CertificateService certificateService;
+    @Autowired
+    private CertificateRepository certificateRepository;
 
 
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -44,7 +47,8 @@ public class CertificateController {
 
     @PostMapping("/revoke/{serialNumber}")
     public ResponseEntity<?> revoke(@PathVariable String serialNumber) throws CertificateEncodingException, KeyStoreException {
-        certificateService.revoke(serialNumber);
+        String alias = certificateRepository.getAliasForCertificate(serialNumber);
+        certificateService.revoke(alias);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -63,13 +67,11 @@ public class CertificateController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER', 'ROLE_END_USER')")
-    @PostMapping("/downloadCertificate")
-    public ResponseEntity<Resource> downloadCertificate(@RequestBody CertificateDTO certToDownload) {
-
+    @GetMapping("/downloadCertificate/{serialNumber}")
+    public ResponseEntity<Resource> downloadCertificate(@PathVariable String serialNumber) {
         Resource file = null;
-
         try {
-            file = certificateService.getCertificateToDownload(certToDownload);
+            file = certificateService.getCertificateToDownload(serialNumber);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"certificate.cer\"")
                     .body(file);

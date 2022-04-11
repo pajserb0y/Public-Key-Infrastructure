@@ -12,6 +12,7 @@ import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service';
 import { DetailsDialogComponent } from '../details-dialog/details-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { saveAs } from 'file-saver';
 
 
 @Component({
@@ -53,7 +54,7 @@ export class AllCertificatesComponent implements OnInit {
     });
   }
 
-  download(certificate :Certificate)
+  /* download(certificate :Certificate)
   {
     this._certificateService.downloadCertificate(certificate)
     .subscribe(
@@ -64,7 +65,14 @@ export class AllCertificatesComponent implements OnInit {
         this.toastr.error(e.error.message, 'Failed to download selected certificate');
       }
     );
-  }
+  } */
+  download(certificate : Certificate)
+  {
+    this._certificateService.downloadCertificate(certificate)
+    .subscribe(
+      blob => saveAs(blob, 'certificate.cer'),
+      error => this.errorMessage = <any>error);
+  } 
 
   getAllCertificatesForUser(email :String)
   {

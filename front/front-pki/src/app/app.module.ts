@@ -31,6 +31,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatCarouselModule } from 'ng-mat-carousel';
 import {MatSortModule} from '@angular/material/sort';
 import {Sort} from '@angular/material/sort';
+import { FileSaverModule } from 'ngx-filesaver';
 
 
 import { HeaderComponent } from './header/header.component';
@@ -105,6 +106,7 @@ const MaterialComponents = [
     MatButtonModule,
     ReactiveFormsModule,
     CommonModule,
+    FileSaverModule,
 
     ToastrModule.forRoot({
       timeOut: 5000,

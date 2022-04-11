@@ -18,9 +18,9 @@ export class CertificateService {
   private _createCertificate = this._certificates + '/createCertificates';
   private _getAllCACertificates = this._certificates + '/getAllCACertificates';
   private _allCertificates = this._certificates + '/getAllCertificates'
-  private _submitCertificate = this._certificates + '/newCertificate';
+  private _submitCertificate = this._certificates + '/newCertificate/';
   private _revokeCertificate = this._certificates + '/revoke/';
-  private _downloadCertificate = this._certificates + '/downloadCertificate';
+  private _downloadCertificate = this._certificates + '/downloadCertificate/';
   constructor(private _http: HttpClient) { }
 
 
@@ -56,11 +56,14 @@ export class CertificateService {
     return this._http.post(this._revokeCertificate + certificate.serialNumber, body)
   }
 
-  downloadCertificate(certificate: Certificate) {
+  /* downloadCertificate(certificate: Certificate) {
     const body=JSON.stringify(certificate);
     console.log(body);
     return this._http.post(this._downloadCertificate, body)
-  }
+  } */
+  downloadCertificate(certificate: Certificate) : Observable<any> {
+    return this._http.get(this._downloadCertificate + certificate.serialNumber, {responseType : 'blob'})
+  } 
 
   getAllCertificates()
   {

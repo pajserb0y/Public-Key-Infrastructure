@@ -29,4 +29,7 @@ public interface CertificateRepository extends JpaRepository<CertificateInDataba
     List<CertificateInDatabase> findAllCAs();
 
     List<CertificateInDatabase> getByE(String email);
+
+    @Query("SELECT c FROM CertificateInDatabase c WHERE c.isRevoked = false")
+    List<CertificateInDatabase> findAllNotRevoked();
 }

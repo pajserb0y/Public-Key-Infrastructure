@@ -19,5 +19,5 @@ public interface CertificateService {
 
     List<CertificateDTO> allCertificatesForUser(String email);
 
-    Resource getCertificateToDownload(CertificateDTO certToDownload);
+    Resource getCertificateToDownload(String certToDownload);
 }

@@ -52,8 +52,10 @@ public class CertificateAdapter {
 
         KeyStoreReader reader = new KeyStoreReader();
         X509Certificate c = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias());
-        final boolean[] keyUsage = c.getKeyUsage();
-        dto.setKeyUsage(adaptKeyUsage(keyUsage));
+        if(c != null) {
+            final boolean[] keyUsage = c.getKeyUsage();
+            dto.setKeyUsage(adaptKeyUsage(keyUsage));
+        }
         dto.setCertificateType(cert.getType());
 
         return dto;
