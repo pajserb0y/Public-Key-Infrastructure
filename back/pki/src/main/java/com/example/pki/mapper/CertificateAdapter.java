@@ -76,12 +76,12 @@ public class CertificateAdapter {
         dto.setC(certDTO.getCountry());
         dto.setCn(certDTO.getCommonName());
         dto.setE(certDTO.getEmail());
-        dto.setGivenName("");
+        dto.setGivenName(certDTO.getCommonName());
         dto.setEndDate(certDTO.getEndDate());
         dto.setIssuerAlias(certDTO.getIssuer());
         dto.setKeyPass("");
         dto.setO(certDTO.getOrganization());
-        dto.setOn("");
+        dto.setOn(certDTO.getOrganization());
         dto.setOu(certDTO.getOrganizationUnit());
         dto.setStartDate(certDTO.getStartDate());
         dto.setSubjectAlias("");
