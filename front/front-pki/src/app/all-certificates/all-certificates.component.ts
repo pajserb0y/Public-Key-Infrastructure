@@ -32,7 +32,7 @@ export class AllCertificatesComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.getAllCertificatesForUser(this.email)   
+    this.role == 'ROLE_ADMIN' ? this.getAllCertificates() : this.getAllCertificatesForUser(this.email)   
 
   }
 
@@ -62,5 +62,13 @@ export class AllCertificatesComponent implements OnInit {
         .subscribe(data =>  this.certificates = data,
                    error => this.errorMessage = <any>error); 
   }
+
+  getAllCertificates()
+  {
+    this._certificateService.getAllCertificates()
+        .subscribe(data =>  this.certificates = data,
+                   error => this.errorMessage = <any>error); 
+  }
+  
 
 }

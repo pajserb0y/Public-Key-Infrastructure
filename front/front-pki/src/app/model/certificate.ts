@@ -2,15 +2,15 @@ import { KeyUsage } from "../model/keyUsage"
 
 export interface Certificate{
     issuer : string,
-    serialNumber: number
+    serialNumber: string
     country: string,
-    state: string,
+    organizationUnit: string,
     organization : string,
     surname: string,
     commonName : string,
     email: string,
-    startDate: string,
-    endDate: string,
-    keyUsage: KeyUsage[],
+    startDate: Date|string,
+    endDate: Date|string,
+    keyUsage: KeyUsage,
     certificateType : number 
 }

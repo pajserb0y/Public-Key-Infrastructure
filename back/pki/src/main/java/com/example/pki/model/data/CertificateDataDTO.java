@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -24,8 +26,8 @@ public class CertificateDataDTO {
     private String s;
 //    @JsonIgnore
     private String subjectAlias;
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
     private String keyPass;
     private List<Integer> keyUsages;
     private Integer type;   //1-root, 2-inter, 3-end

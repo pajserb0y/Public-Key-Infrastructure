@@ -1,5 +1,6 @@
 package com.example.pki.controller;
 
+import com.example.pki.mapper.CertificateAdapter;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.service.CertificateService;
@@ -22,25 +23,27 @@ public class CertificateController {
 
 
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/issueRoot")
-    public ResponseEntity<?> issueRootCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
+    @PostMapping("/newCertificate")
+    public ResponseEntity<?> newCertificates(@RequestBody CertificateDTO certificateDTO) {
         //certificateService.setDataGenerator(rootIntermediateDataGenerator);
+        CertificateDataDTO certificateDataDTO = CertificateAdapter.covertDtoToDataDto(certificateDTO);
         certificateService.issueCertificate(certificateDataDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/getAllCertificates")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(certificateService.getAll(), HttpStatus.OK);
     }
 
-    @PutMapping("/revoke/{alias}")
-    public ResponseEntity<?> revoke(@PathVariable String alias) throws CertificateEncodingException, KeyStoreException {
-        certificateService.revoke(alias);
+    @PutMapping("/revoke/{serialNumber}")
+    public ResponseEntity<?> revoke(@PathVariable String serialNumber) throws CertificateEncodingException, KeyStoreException {
+        certificateService.revoke(serialNumber);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER')")
     @GetMapping("/getAllCACertificates")
     public ResponseEntity<List<CertificateDTO>> getAllCACertificates() {
         return new ResponseEntity<>(certificateService.getAllValidCACertificates(), HttpStatus.OK);

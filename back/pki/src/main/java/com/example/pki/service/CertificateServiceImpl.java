@@ -25,7 +25,6 @@ import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -39,52 +38,52 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void issueCertificate(CertificateDataDTO certificateDataDTO) {
-            KeyStoreReader reader = new KeyStoreReader();
-            KeyPair keyPairIssuer = generateKeyPair();
-            IssuerData issuerData;
-            if(certificateDataDTO.getType() != 1)
-                issuerData = generateRootIssuerData(certificateDataDTO, keyPairIssuer.getPrivate());
-            else
-                issuerData = reader.readIssuerFromStore(KEYSTORE_JKS_FILE_NAME, certificateDataDTO.getIssuerAlias(), JKS_PASS.toCharArray(), certificateDataDTO.getKeyPass().toCharArray());
-            SubjectData subjectData = generateSubjectData(certificateDataDTO, keyPairIssuer.getPublic());
+        KeyStoreReader reader = new KeyStoreReader();
+        KeyPair keyPairIssuer = generateKeyPair();
+        IssuerData issuerData;
+        if (certificateDataDTO.getType() == 1)
+            issuerData = generateRootIssuerData(certificateDataDTO, keyPairIssuer.getPrivate());
+        else
+            issuerData = reader.readIssuerFromStore(KEYSTORE_JKS_FILE_NAME, certificateDataDTO.getIssuerAlias(), JKS_PASS.toCharArray(), certificateDataDTO.getKeyPass().toCharArray());
+        SubjectData subjectData = generateSubjectData(certificateDataDTO, keyPairIssuer.getPublic());
 
-            //Generise se sertifikat za subjekta, potpisan od strane issuer-a
-            CertificateGenerator cg = new CertificateGenerator();
-            X509Certificate cert = cg.generateCertificate(subjectData, issuerData, certificateDataDTO.getKeyUsages());
+        //Generise se sertifikat za subjekta, potpisan od strane issuer-a
+        CertificateGenerator cg = new CertificateGenerator();
+        X509Certificate cert = cg.generateCertificate(subjectData, issuerData, certificateDataDTO.getKeyUsages());
 
-            //Keystore
-            KeyStoreWriter writer = new KeyStoreWriter();
-            writer.loadKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
-            writer.write(certificateDataDTO.getSubjectAlias(), keyPairIssuer.getPrivate(), certificateDataDTO.getKeyPass().toCharArray(), cert);
-            writer.saveKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
-
-            //Database
-        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
-                    certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
-                            certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
-                            certificateDataDTO.getSubjectAlias(), iso8601Formater.parse(certificateDataDTO.getStartDate()), iso8601Formater.parse(certificateDataDTO.getEndDate()),
-                            certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(), null));
-            else    //sub
-                certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
-                        certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
-                        certificateDataDTO.getSubjectAlias(), iso8601Formater.parse(certificateDataDTO.getStartDate()), iso8601Formater.parse(certificateDataDTO.getEndDate()),
-                        certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(), certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-            //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
-    }
-
-    @Override
-    public List<CertificateDataDTO> getAll() {
-        return CertificateAdapter.convertToDtoList(certificateRepository.findAll());
-    }
-
-    @Override
-    public void revoke(String alias) throws KeyStoreException, CertificateEncodingException {
+        //Keystore
         KeyStoreWriter writer = new KeyStoreWriter();
+        writer.loadKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
+        writer.write(certificateDataDTO.getSubjectAlias(), keyPairIssuer.getPrivate(), certificateDataDTO.getKeyPass().toCharArray(), cert);
+        writer.saveKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
+
+        //Database
+        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+
+        if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
+            certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
+                    certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
+                    certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false,
+                    certificateDataDTO.getType(), null));
+        else    //sub
+            certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
+                    certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
+                    certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(),
+                    certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
+
+        //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
+
+    }
+    @Override
+    public List<CertificateDTO> getAll() {
+        return CertificateAdapter.convertToCertDTOList(certificateRepository.findAll());
+    }
+
+    @Override
+    public void revoke(String serialNumber) throws KeyStoreException, CertificateEncodingException {
+        KeyStoreWriter writer = new KeyStoreWriter();
+
+        String alias = certificateRepository.getAliasForCertificate(serialNumber);
 
         writer.loadKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
         List<Certificate> subCerts = writer.findAllSubs(alias);
@@ -115,7 +114,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<CertificateDTO> allCertificatesForUser(String email) {
-        return CertificateAdapter.convertToCertDTOList(certificateRepository.findByE(email));
+        return CertificateAdapter.convertToCertDTOList(certificateRepository.getByE(email));
     }
 
     private List<CertificateInDatabase> filterValid(List<CertificateInDatabase> certificates) {
@@ -148,7 +147,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private SubjectData generateSubjectData(CertificateDataDTO dto, PublicKey publicKey) {
-        try {
+        //try {
             //KeyPair keyPairSubject = generateKeyPair();
 //            byte[] array = new byte[7]; // length is bounded by 7
             Random random = new Random();
@@ -158,9 +157,9 @@ public class CertificateServiceImpl implements CertificateService {
                     .toString());
 
             //Datumi od kad do kad vazi sertifikat
-            SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
-            Date startDate = iso8601Formater.parse(dto.getStartDate());
-            Date endDate = iso8601Formater.parse(dto.getEndDate());
+            //SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+            //Date startDate = iso8601Formater.format(dto.getStartDate().toString());
+            // Date endDate = iso8601Formater.parse(dto.getEndDate());
 
             //Serijski broj sertifikata
             Random randNum = new Random();
@@ -188,11 +187,11 @@ public class CertificateServiceImpl implements CertificateService {
             // - podatke o vlasniku
             // - serijski broj sertifikata
             // - od kada do kada vazi sertifikat
-            return new SubjectData(publicKey, builder.build(), serialNumber.toString(), startDate, endDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+            return new SubjectData(publicKey, builder.build(), serialNumber.toString(), dto.getStartDate(), dto.getEndDate());
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+    //    return null;
     }
 
     private KeyPair generateKeyPair() {

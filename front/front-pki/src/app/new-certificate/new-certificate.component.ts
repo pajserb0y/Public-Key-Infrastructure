@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service'
-
+import { DatePipe } from '@angular/common'
 
 @Component({
   selector: 'app-new-certificate',
@@ -14,20 +14,30 @@ export class NewCertificateComponent implements OnInit {
   CACertificates : Certificate[] = [];
  @Input() newCertificate : Certificate = {
     issuer: '',
-    serialNumber: 0,
+    serialNumber: '',
     country: '',
-    state: '',
+    organizationUnit: '',
     organization: '',
     surname: '',
     commonName: '',
     email: '',
-    startDate: '',
-    endDate: '',
-    keyUsage: [],
+    startDate: new Date(),
+    endDate:  new Date(),
+    keyUsage: {
+      certificateSigning: false,
+      crlSign: false,
+      dataEncipherment: false,
+      decipherOnly: false,
+      digitalSignature: false,
+      encipherOnly: false,
+      keyAgreement: false,
+      keyEncipherment: false,
+      nonRepudiation: false,
+    },
     certificateType: 1
   };
   
-  role : string | null = localStorage.getItem('role');
+  role : string = localStorage.getItem('role') || '';
   errorMessage : string = '';
 
   minDate : Date = new Date();
@@ -40,7 +50,7 @@ export class NewCertificateComponent implements OnInit {
     endDate: new FormControl(),
   });
 
-  constructor(  private formBuilder: FormBuilder, private _certificateService: CertificateService) {
+  constructor(  private formBuilder: FormBuilder, private _certificateService: CertificateService,public datepipe: DatePipe) {
   
    }
 
@@ -90,9 +100,20 @@ export class NewCertificateComponent implements OnInit {
         .subscribe(CAcerts => this.CACertificates = CAcerts,
                     error => this.errorMessage = <any>error); 
   }
+
   submitCertificate(certificate : Certificate)
   {
-    this._certificateService.submitCertificate(certificate); 
+    this._certificateService.submitCertificate(certificate)
+      .subscribe(() => {},
+        error => this.errorMessage = <any>error);
+  }
+
+  convertDate()
+  { 
+    this.newCertificate.startDate = this.datepipe.transform(this.newCertificate.startDate, 'yyyy-MM-dd') || '';
+    this.newCertificate.endDate =this.datepipe.transform(this.newCertificate.endDate, 'yyyy-MM-dd') || '';
+    this.newCertificate.endDate = this.newCertificate.endDate.split('T')[0];
+    this.newCertificate.startDate = this.newCertificate.startDate.split('T')[0];
   }
 }
 

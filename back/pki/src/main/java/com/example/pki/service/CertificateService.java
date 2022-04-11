@@ -10,7 +10,7 @@ import java.util.List;
 public interface CertificateService {
     void issueCertificate(CertificateDataDTO certificateDataDTO);
 
-    List<CertificateDataDTO> getAll();
+    List<CertificateDTO> getAll();
 
     void revoke(String alias) throws KeyStoreException, CertificateEncodingException;
 

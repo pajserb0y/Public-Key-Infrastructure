@@ -6,8 +6,8 @@
       <mat-stepper orientation="vertical" linear #stepper >
         <mat-step label="Fill in certificate info">
         <mat-radio-group  [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
-            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" value="1">Root Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="2">Intermediate Certificate</mat-radio-button>
+            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" checked="true" value="1">Root Certificate</mat-radio-button>
+            <mat-radio-button *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
             <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
           </mat-radio-group> 
             
@@ -30,13 +30,7 @@
                   <mat-hint *ngIf="newCertificate.country == ''">Required</mat-hint>
                 </mat-form-field>
               </li>
-              <li>
-                <mat-form-field appearance="fill">
-                  <mat-label>State/province</mat-label>
-                  <input matInput type="text" name="state" [(ngModel)]="newCertificate.state" required>
-                  <mat-hint *ngIf="newCertificate.state == ''">Required</mat-hint>
-                </mat-form-field>
-              </li>
+             
               <li>
                 <mat-form-field appearance="fill">
                   <mat-label>Organization</mat-label>
@@ -44,6 +38,15 @@
                   <mat-hint *ngIf="newCertificate.organization == ''">Required</mat-hint>
                 </mat-form-field>
               </li>
+
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Organization Unit</mat-label>
+                  <input matInput type="text" name="organizationUnit" [(ngModel)]="newCertificate.organizationUnit" required>
+                  <mat-hint *ngIf="newCertificate.organizationUnit == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
               <li>
                 <mat-form-field appearance="fill">
                   <mat-label>Common name</mat-label>
@@ -83,7 +86,7 @@
                         <mat-form-field appearance="fill">
                           <mat-label>Select available date range</mat-label>
                           <mat-date-range-input [min]="minDate" [formGroup]="rangeTerm" [rangePicker]="picker">
-                            <input matStartDate formControlName="startDate" placeholder="Start date" required >
+                            <input matStartDate  formControlName="startDate" placeholder="Start date" required >
                             <input matEndDate formControlName="endDate" placeholder="End date"  (dateChange)="checkAvailability()" required>
                           </mat-date-range-input>
                           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -203,6 +206,6 @@
               
             </ul>
             <div>
-              <button mat-button onclick="submitCertificate(newCertificate)"  color="primary">CREATE</button>
+              <button mat-button (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
             </div>
   
