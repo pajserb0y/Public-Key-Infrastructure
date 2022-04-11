@@ -19,7 +19,7 @@ export class CertificateService {
   private _getAllCACertificates = this._certificates + '/getAllCACertificates';
   private _allCertificates = this._certificates + '/getAllCertificates'
   private _submitCertificate = this._certificates + '/newCertificate';
-  private _revokeCertificate = this._certificates + '/revokeCertificate';
+  private _revokeCertificate = this._certificates + '/revoke/';
   private _downloadCertificate = this._certificates + '/downloadCertificate';
   constructor(private _http: HttpClient) { }
 
@@ -53,7 +53,7 @@ export class CertificateService {
   revokeCertificate(certificate: Certificate) : Observable<any>{
     const body=JSON.stringify(certificate);
     console.log(body);
-    return this._http.post(this._revokeCertificate, body)
+    return this._http.post(this._revokeCertificate + certificate.serialNumber, body)
   }
 
   downloadCertificate(certificate: Certificate) {

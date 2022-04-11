@@ -1,11 +1,10 @@
-<p>new-certificate works!</p>
 <div *ngIf="role != 'ROLE_END_USER'"  class="stepper">
     <h1>New Certificate</h1>
   
   <form name="rform" #registerForm="ngForm">
       <mat-stepper orientation="vertical" linear #stepper >
-        <mat-step label="Fill in certificate info">
-        <mat-radio-group  [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
+        <mat-step label="Certificate info">
+        <mat-radio-group *ngIf="newCertRegime == true" [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
             <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" checked="true" value="1">Root Certificate</mat-radio-button>
             <mat-radio-button *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
             <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
@@ -206,6 +205,6 @@
               
             </ul>
             <div>
-              <button mat-button (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
+              <button mat-button *ngIf="newCertRegime == true" (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
             </div>
   

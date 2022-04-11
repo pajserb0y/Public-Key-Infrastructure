@@ -1,6 +1,6 @@
 .stepper {
     margin: 4%;
-    margin-left: 20%;
+    margin-left: 10%;
     margin-right: 20%;
   }
   
@@ -9,7 +9,7 @@
   }
   
   mat-form-field {
-    width: 400px;
+    width: 250px;
     padding-top: 10px;
   }
   

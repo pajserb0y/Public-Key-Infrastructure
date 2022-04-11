@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-
+import { ToastrModule } from 'ngx-toastr';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -104,7 +104,13 @@ const MaterialComponents = [
     FormsModule,
     MatButtonModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+
+    ToastrModule.forRoot({
+      timeOut: 5000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+  }),
     
   ],
   providers: [UserService, CertificateService,

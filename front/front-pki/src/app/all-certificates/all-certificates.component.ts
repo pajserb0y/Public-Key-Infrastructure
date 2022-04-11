@@ -6,10 +6,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import {MatSort, Sort} from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service';
 import { DetailsDialogComponent } from '../details-dialog/details-dialog.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -27,7 +29,7 @@ export class AllCertificatesComponent implements OnInit {
   role : string = localStorage.getItem('role') || '';
   
 
-  constructor(private _certificateService: CertificateService, private router: Router, private _snackBar: MatSnackBar, public dialog: MatDialog) { }
+  constructor(private _certificateService: CertificateService, private toastr: ToastrService, private router: Router, private _snackBar: MatSnackBar, public dialog: MatDialog) { }
   email: string = localStorage.getItem('email') || '' ;
 
 
@@ -53,7 +55,15 @@ export class AllCertificatesComponent implements OnInit {
 
   download(certificate :Certificate)
   {
-    this._certificateService.downloadCertificate(certificate);
+    this._certificateService.downloadCertificate(certificate)
+    .subscribe(
+      () => {
+        this.toastr.success('Success!', 'Download certificate');
+      },
+      (e: HttpErrorResponse) => {
+        this.toastr.error(e.error.message, 'Failed to download selected certificate');
+      }
+    );
   }
 
   getAllCertificatesForUser(email :String)

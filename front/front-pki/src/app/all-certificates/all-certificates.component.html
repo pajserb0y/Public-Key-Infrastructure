@@ -11,36 +11,36 @@
         <ng-container matColumnDef="serialNumber">
             <mat-header-cell *matHeaderCellDef > serial Number </mat-header-cell>
                 <mat-cell *matCellDef="let element" >
-                  <ng-container >{{element.certificate.serialNumber}}</ng-container>
+                  <ng-container >{{element.serialNumber}}</ng-container>
                     </mat-cell>
           </ng-container>
     
           <ng-container matColumnDef="subjectName">
             <mat-header-cell *matHeaderCellDef> subject Name </mat-header-cell>
                 <mat-cell *matCellDef="let element" >
-                  <ng-container >{{element.certificate.subjectName}}</ng-container>
+                  <ng-container >{{element.commonName}}</ng-container>
                     </mat-cell>
           </ng-container>
     
           <ng-container matColumnDef="issuerName">
-            <mat-header-cell *matHeaderCellDef > issuer Name </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.certificate.issuerName}} </mat-cell>
+            <mat-header-cell *matHeaderCellDef > issuer Alias </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.issuer}} </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="validFrom">
             <mat-header-cell *matHeaderCellDef> valid From</mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.certificate.validFrom}} </mat-cell>
+            <mat-cell *matCellDef="let element"> {{element.startDate | date: 'shortDate' }} </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="validTo">
             <mat-header-cell *matHeaderCellDef > valid To </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.certificate.validTo}} </mat-cell>
+            <mat-cell *matCellDef="let element"> {{element.endDate | date: 'shortDate'}} </mat-cell>
           </ng-container>
 
           <ng-container matColumnDef="viewDetails">
             <mat-header-cell *matHeaderCellDef> View Details </mat-header-cell>
             <mat-cell *matCellDef="let element"> 
-            <button mat-button [attr.id]="element.id"  (click)="viewDetails(element)">
+            <button mat-button (click)="viewDetails(element)">
               View Details
             </button>
             </mat-cell>
@@ -49,7 +49,7 @@
           <ng-container matColumnDef="revoke">
             <mat-header-cell *matHeaderCellDef> Revoke </mat-header-cell>
             <mat-cell *matCellDef="let element"> 
-              <button mat-button [attr.id]="element.id"  (click)="revoke(element)">
+              <button mat-button (click)="revoke(element)">
                 Revoke
               </button>
               </mat-cell>
@@ -58,15 +58,15 @@
           <ng-container matColumnDef="download">
             <mat-header-cell *matHeaderCellDef> Download </mat-header-cell>
             <mat-cell *matCellDef="let element"> 
-              <button mat-button [attr.id]="element.id"  (click)="download(element)">
-                Revoke
+              <button mat-button  (click)="download(element)">
+                Download
               </button>
               </mat-cell>
           </ng-container>
           
     
           <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" ></mat-header-row>
-          <!--<mat-row *matRowDef="let row; columns: displayedColumns;" (click)="revoke(row.certificate)" [class.selected]="row.selected"></mat-row>-->
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row><!--<mat-row *matRowDef="let row; columns: displayedColumns;" (click)="revoke(row.certificate)" [class.selected]="row.selected"></mat-row>-->
       </table>
     </div>
     </div>
