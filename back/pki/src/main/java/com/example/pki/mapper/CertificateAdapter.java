@@ -1,13 +1,18 @@
 package com.example.pki.mapper;
 
+import com.example.pki.keystores.KeyStoreReader;
 import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.model.dto.KeyUsageDTO;
 import org.bouncycastle.asn1.x509.KeyUsage;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.pki.keystores.KeyStoreReader.KEYSTORE_JKS_FILE_NAME;
+import static com.example.pki.service.CertificateServiceImpl.JKS_PASS;
 
 public class CertificateAdapter {
     public static List<CertificateDataDTO> convertToDtoList(List<CertificateInDatabase> certs) {
@@ -41,10 +46,30 @@ public class CertificateAdapter {
         dto.setEmail(cert.getE());
         dto.setStartDate(cert.getStartDate());
         dto.setEndDate(cert.getEndDate());
-        //dto.setKeyUsage(convertKeyUsageDTO(cert.getKeyUsage()));
+
+        KeyStoreReader reader = new KeyStoreReader();
+        X509Certificate c = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias());
+        final boolean[] keyUsage = c.getKeyUsage();
+        dto.setKeyUsage(adaptKeyUsage(keyUsage));
         dto.setCertificateType(cert.getType());
 
         return dto;
+    }
+
+    private static KeyUsageDTO adaptKeyUsage(boolean[] keyUsage) {
+        KeyUsageDTO keyUsageDTO = new KeyUsageDTO();
+
+        keyUsageDTO.setDigitalSignature(keyUsage[0]);
+        keyUsageDTO.setNonRepudiation(keyUsage[1]);
+        keyUsageDTO.setKeyEncipherment(keyUsage[2]);
+        keyUsageDTO.setDataEncipherment(keyUsage[3]);
+        keyUsageDTO.setKeyAgreement(keyUsage[4]);
+        keyUsageDTO.setCertificateSigning(keyUsage[5]);
+        keyUsageDTO.setCrlSign(keyUsage[6]);
+        keyUsageDTO.setEncipherOnly(keyUsage[7]);
+        keyUsageDTO.setDecipherOnly(keyUsage[8]);
+
+        return keyUsageDTO;
     }
 
     private static CertificateDataDTO covertToDto(CertificateInDatabase cert) {
@@ -119,7 +144,7 @@ public class CertificateAdapter {
 
     public static KeyUsageDTO convertKeyUsageDTO(List<Integer> keyUsages) {
 
-        KeyUsageDTO keyUsageDTO = null;
+        KeyUsageDTO keyUsageDTO = new KeyUsageDTO();
         for (Integer keyUsage : keyUsages) {
             if(keyUsage == 4)
                 keyUsageDTO.setCertificateSigning(true);
