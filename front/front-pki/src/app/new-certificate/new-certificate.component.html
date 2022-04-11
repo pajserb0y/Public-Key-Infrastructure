@@ -15,7 +15,7 @@
                 <mat-form-field  *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
                   <mat-label>Choose issuer</mat-label>
                   <mat-select name="CACertificate" [(ngModel)]="newCertificate.issuer" required>
-                    <mat-option *ngFor="let CACertificate of CACertificates" [value]="CACertificate">
+                    <mat-option *ngFor="let CACertificate of CACertificates" [value]="CACertificate.serialNumber">
                       {{CACertificate.serialNumber}}
                     </mat-option>
                   </mat-select>
@@ -84,8 +84,8 @@
                       <div>
                         <mat-form-field appearance="fill">
                           <mat-label>Select available date range</mat-label>
-                          <mat-date-range-input [min]="minDate" [formGroup]="rangeTerm" [rangePicker]="picker">
-                            <input matStartDate formControlName="startDate" placeholder="Start date" required >
+                          <mat-date-range-input  [formGroup]="rangeTerm" [rangePicker]="picker">
+                            <input matStartDate  formControlName="startDate" placeholder="Start date" required >
                             <input matEndDate formControlName="endDate" placeholder="End date"  (dateChange)="checkAvailability()" required>
                           </mat-date-range-input>
                           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -112,7 +112,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.digitalSignature" (change)="newCertificate.keyUsage.digitalSignature = !newCertificate.keyUsage.digitalSignature" formControlName="digitalSignature">
+                                    <mat-checkbox formControlName="digitalSignature" [checked]="newCertificate.keyUsage.digitalSignature" (change)="newCertificate.keyUsage.digitalSignature = !newCertificate.keyUsage.digitalSignature">
                                         Digital Signature
                                     </mat-checkbox>
                                 </div>
@@ -121,7 +121,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.nonRepudiation" (change)="newCertificate.keyUsage.nonRepudiation = !newCertificate.keyUsage.nonRepudiation" formControlName="nonRepudiation">
+                                    <mat-checkbox formControlName="nonRepudiation" [checked]="newCertificate.keyUsage.nonRepudiation" (change)="newCertificate.keyUsage.nonRepudiation = !newCertificate.keyUsage.nonRepudiation">
                                         Non Repudiation
                                     </mat-checkbox>
                                 </div>
@@ -130,7 +130,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.keyEncipherment" (change)="newCertificate.keyUsage.keyEncipherment = !newCertificate.keyUsage.keyEncipherment" formControlName="keyEncipherment">
+                                    <mat-checkbox formControlName="keyEncipherment" [checked]="newCertificate.keyUsage.keyEncipherment" (change)="newCertificate.keyUsage.keyEncipherment = !newCertificate.keyUsage.keyEncipherment">
                                         Key Encipherment
                                     </mat-checkbox>
                                 </div>
@@ -139,7 +139,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.dataEncipherment" (change)="newCertificate.keyUsage.dataEncipherment = !newCertificate.keyUsage.dataEncipherment" formControlName="dataEncipherment">
+                                    <mat-checkbox formControlName="dataEncipherment" [checked]="newCertificate.keyUsage.dataEncipherment" (change)="newCertificate.keyUsage.dataEncipherment = !newCertificate.keyUsage.dataEncipherment">
                                         Data Encipherment
                                     </mat-checkbox>
                                 </div>
@@ -148,7 +148,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.keyAgreement" (change)="newCertificate.keyUsage.keyAgreement = !newCertificate.keyUsage.keyAgreement" formControlName="keyAgreement">
+                                    <mat-checkbox formControlName="keyAgreement" [checked]="newCertificate.keyUsage.keyAgreement" (change)="newCertificate.keyUsage.keyAgreement = !newCertificate.keyUsage.keyAgreement">
                                         Key Agreement
                                     </mat-checkbox>
                                 </div>
@@ -157,7 +157,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.certificateSigning" (change)="newCertificate.keyUsage.certificateSigning = !newCertificate.keyUsage.certificateSigning" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2"formControlName="certificateSigning">
+                                    <mat-checkbox formControlName="certificateSigning" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.certificateSigning" (change)="newCertificate.keyUsage.certificateSigning = !newCertificate.keyUsage.certificateSigning">
                                         Certificate Signing
                                     </mat-checkbox>
                                 </div>
@@ -166,7 +166,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.crlSign" (change)="newCertificate.keyUsage.crlSign = !newCertificate.keyUsage.crlSign" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" formControlName="crlSign">
+                                    <mat-checkbox formControlName="crlSign" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.crlSign" (change)="newCertificate.keyUsage.crlSign = !newCertificate.keyUsage.crlSign">
                                         CRL Sign
                                     </mat-checkbox>
                                 </div>
@@ -175,7 +175,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.encipherOnly" (change)="newCertificate.keyUsage.encipherOnly = !newCertificate.keyUsage.encipherOnly" formControlName="encipherOnly">
+                                    <mat-checkbox formControlName="encipherOnly" [checked]="newCertificate.keyUsage.encipherOnly" (change)="newCertificate.keyUsage.encipherOnly = !newCertificate.keyUsage.encipherOnly">
                                         Encipher Only
                                     </mat-checkbox>
                                 </div>
@@ -184,7 +184,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox [checked]="newCertificate.keyUsage.decipherOnly" (change)="newCertificate.keyUsage.decipherOnly = !newCertificate.keyUsage.decipherOnly" formControlName="decipherOnly">
+                                    <mat-checkbox formControlName="decipherOnly" [checked]="newCertificate.keyUsage.decipherOnly" (change)="newCertificate.keyUsage.decipherOnly = !newCertificate.keyUsage.decipherOnly">
                                         Decipher Only
                                     </mat-checkbox>
                                 </div>

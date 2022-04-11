@@ -4,18 +4,21 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
+import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.IssuerData;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
 //import rs.ac.uns.ftn.informatika.ib.crypto.primeri.pki.data.IssuerData;
@@ -27,6 +30,8 @@ public class KeyStoreReader {
 	// - Sertifikati koji ukljucuju javni kljuc
 	// - Privatni kljucevi
 	// - Tajni kljucevi, koji se koriste u simetricnima siframa
+	public static final String KEYSTORE_JKS_FILE_NAME = "keystore.jks";
+	public static final String JKS_PASS = "pass";
 	private KeyStore keyStore;
 	
 	public KeyStoreReader() {
@@ -138,5 +143,36 @@ public class KeyStoreReader {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public boolean isValid(X509Certificate certificate) {
+		if(certificate.getNotAfter().before(new Date()) || certificate.getNotBefore().after(new Date()))
+			return false;
+		X500Name issuerData;
+		try {
+			issuerData = new JcaX509CertificateHolder(certificate).getIssuer();
+			RDN aliasRDN = issuerData.getRDNs(BCStyle.PSEUDONYM)[0];
+			String issuerAlias = IETFUtils.valueToString(aliasRDN.getFirst().getValue());
+			if(issuerAlias.equals("root"))
+				return true;
+			X509Certificate issuerCertificate = (X509Certificate) readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, issuerAlias);
+			certificate.verify(issuerCertificate.getPublicKey());
+			if(isValid(issuerCertificate))
+				return true;
+	//		return invalidate(certificate, InvalidationReason.parentInvalidated);
+		} catch (CertificateEncodingException e) {
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

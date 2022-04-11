@@ -33,12 +33,15 @@ public class CertificateInDatabase {
 //    @JsonIgnore
     @Column(unique = true)
     private String subjectAlias;
+    @Temporal(TemporalType.DATE)
     private Date startDate;
+    @Temporal(TemporalType.DATE)
     private Date endDate;
-    private String jksPass;
+    private String keyPass;
     private boolean isRevoked;
     private Integer type;
 
     @ManyToOne
     private CertificateInDatabase issuer;
+
 }

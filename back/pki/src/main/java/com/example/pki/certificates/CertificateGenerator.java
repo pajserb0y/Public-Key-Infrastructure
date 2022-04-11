@@ -24,7 +24,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 public class CertificateGenerator {
 	public CertificateGenerator() {}
 	
-	public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, List<Integer> keyUsages) {
+	public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, List<Boolean> keyUsages) {
 		try {
 			//Posto klasa za generisanje sertifiakta ne moze da primi direktno privatni kljuc pravi se builder za objekat
 			//Ovaj objekat sadrzi privatni kljuc izdavaoca sertifikata i koristiti se za potpisivanje sertifikata
@@ -45,8 +45,17 @@ public class CertificateGenerator {
 					subjectData.getPublicKey());
 
 			//TODO: ekstenzije, staviti na frontu koji broj je koji KeyUsage
-			for (int usage : keyUsages)
-				certGen.addExtension(Extension.keyUsage, true, new KeyUsage(usage));
+			int sum = 0;
+			for (int i = 0; i < keyUsages.size(); i++){
+				if(keyUsages.get(i)){
+					sum += Math.pow(2, i);
+				}
+			}
+//			return retVal;
+//			for (int usage : keyUsages)
+//				certGen.addExtension(Extension.keyUsage, true, new KeyUsage(usage));
+
+			certGen.addExtension(Extension.keyUsage, true, new KeyUsage(sum));
 			//BasicConstraints
 
 			//Generise se sertifikat

@@ -9,8 +9,8 @@ export interface Certificate{
     surname: string,
     commonName : string,
     email: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: Date|string,
+    endDate: Date|string,
     keyUsage: KeyUsage,
     certificateType : number 
 }

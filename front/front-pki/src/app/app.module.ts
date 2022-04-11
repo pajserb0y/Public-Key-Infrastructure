@@ -47,7 +47,7 @@ import { CertificateService } from './service/certificate.service';
 import { InterceptorService } from './service/interceptor.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AllCertificatesComponent } from './all-certificates/all-certificates.component';
 import { MatTableModule } from '@angular/material/table';
 import { NewCertificateComponent } from './new-certificate/new-certificate.component';
@@ -114,7 +114,7 @@ const MaterialComponents = [
     
   ],
   providers: [UserService, CertificateService,
-                { provide: JWT_OPTIONS, useValue: JWT_OPTIONS }, JwtHelperService,
+                { provide: JWT_OPTIONS, useValue: JWT_OPTIONS }, JwtHelperService, DatePipe,
                 { provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true }],
   bootstrap: [AppComponent]
 })

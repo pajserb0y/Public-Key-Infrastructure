@@ -2,12 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service'
-<<<<<<< Updated upstream
-
-=======
 import { DatePipe } from '@angular/common'
 import { KeyUsage } from '../model/keyUsage';
->>>>>>> Stashed changes
 
 @Component({
   selector: 'app-new-certificate',
@@ -56,7 +52,7 @@ export class NewCertificateComponent implements OnInit {
     endDate: new FormControl(),
   });
 
-  constructor(  private formBuilder: FormBuilder, private _certificateService: CertificateService) {
+  constructor(  private formBuilder: FormBuilder, private _certificateService: CertificateService,public datepipe: DatePipe) {
   
    }
 
@@ -64,7 +60,6 @@ export class NewCertificateComponent implements OnInit {
     this.initKeyUsageForm();
     this.initExtendedKeyUsageForm();
     this.getAllCACertificates();
-    this.newCertificate.certificateType = 1;
   }
 
   checkAvailability()
@@ -111,10 +106,19 @@ export class NewCertificateComponent implements OnInit {
 
   submitCertificate(certificate : Certificate)
   {
-    this.convertDate()
+    certificate.startDate = this.rangeTerm.value.startDate;
+    certificate.endDate = this.rangeTerm.value.endDate;
     this._certificateService.submitCertificate(certificate)
       .subscribe(() => {},
         error => this.errorMessage = <any>error);
+  }
+
+  convertDate()
+  { 
+    this.newCertificate.startDate = this.datepipe.transform(this.newCertificate.startDate, 'yyyy-MM-dd') || '';
+    this.newCertificate.endDate =this.datepipe.transform(this.newCertificate.endDate, 'yyyy-MM-dd') || '';
+    this.newCertificate.endDate = this.newCertificate.endDate.split('T')[0];
+    this.newCertificate.startDate = this.newCertificate.startDate.split('T')[0];
   }
 }
 
