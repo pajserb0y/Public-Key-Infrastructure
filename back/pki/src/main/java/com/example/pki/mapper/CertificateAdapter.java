@@ -40,7 +40,7 @@ public class CertificateAdapter {
         dto.setSerialNumber(cert.getSerialNumber());
         dto.setCountry(cert.getC());
         dto.setOrganizationUnit(cert.getOu());
-        dto.setOrganization(cert.getOn());
+        dto.setOrganization(cert.getO());
         dto.setSurname(cert.getSurname());
         dto.setCommonName(cert.getCn());
         dto.setEmail(cert.getE());
@@ -86,7 +86,7 @@ public class CertificateAdapter {
             dto.setIssuerAlias(cert.getIssuer().getSubjectAlias());
         dto.setKeyPass(cert.getKeyPass());
         dto.setO(cert.getO());
-        dto.setOn(cert.getOn());
+        dto.setOn(cert.getO());
         dto.setOu(cert.getOu());
         dto.setStartDate(cert.getStartDate());
         dto.setSubjectAlias(cert.getSubjectAlias());

@@ -1,18 +1,18 @@
 <div *ngIf="role != 'ROLE_END_USER'"  class="stepper">
     <h1>New Certificate</h1>
   
-  <form name="rform" #registerForm="ngForm">
+  <form  name="rform" #registerForm="ngForm">
       <mat-stepper orientation="vertical" linear #stepper >
-        <mat-step label="Certificate info">
+        <mat-step label="Fill in certificate info">
         <mat-radio-group *ngIf="newCertRegime == true" [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
-            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" checked="true" value="1">Root Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role == 'ROLE_ADMIN'"  value="1">Root Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
           </mat-radio-group> 
             
             <ul>
               <li>
-                <mat-form-field *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
+                <mat-form-field  *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
                   <mat-label>Choose issuer</mat-label>
                   <mat-select name="CACertificate" [(ngModel)]="newCertificate.issuer" required>
                     <mat-option *ngFor="let CACertificate of CACertificates" [value]="CACertificate">
@@ -157,7 +157,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox formControlName="certificateSigning">
+                                    <mat-checkbox [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2"formControlName="certificateSigning">
                                         Certificate Signing
                                     </mat-checkbox>
                                 </div>
@@ -166,7 +166,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox formControlName="crlSign">
+                                    <mat-checkbox [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" formControlName="crlSign">
                                         CRL Sign
                                     </mat-checkbox>
                                 </div>
