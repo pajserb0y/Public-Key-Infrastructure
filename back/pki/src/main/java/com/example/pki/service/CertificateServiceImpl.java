@@ -64,7 +64,7 @@ public class CertificateServiceImpl implements CertificateService {
         //Database
         SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
 
-        if (certificateDataDTO.getIssuerAlias().equals(certificateDataDTO.getSubjectAlias()))   //root
+        if (certificateDataDTO.getIssuerAlias() == null)   //root
             certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                     certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
                     certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false,
