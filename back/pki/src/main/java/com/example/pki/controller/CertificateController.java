@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.KeyStoreException;
 import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -27,13 +30,12 @@ public class CertificateController {
 
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/newCertificate")
-    public ResponseEntity<?> newCertificates(@RequestBody CertificateDTO certificateDTO) {
-        //certificateService.setDataGenerator(rootIntermediateDataGenerator);
+    public ResponseEntity<?> newCertificate(@RequestBody CertificateDTO certificateDTO) {
         CertificateDataDTO certificateDataDTO = CertificateAdapter.covertDtoToDataDto(certificateDTO);
         certificateService.issueCertificate(certificateDataDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
+    //Certificate Signing, Off-line CRL Signing, CRL Signing (06)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/getAllCertificates")
     public ResponseEntity<?> getAll() {

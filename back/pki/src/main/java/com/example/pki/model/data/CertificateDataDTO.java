@@ -29,7 +29,7 @@ public class CertificateDataDTO {
     private Date startDate;
     private Date endDate;
     private String keyPass;
-    private List<Integer> keyUsages;
+    private List<Boolean> keyUsages;
     private Integer type;   //1-root, 2-inter, 3-end
 
 }

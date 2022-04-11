@@ -7,8 +7,11 @@ import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.model.dto.KeyUsageDTO;
 import org.bouncycastle.asn1.x509.KeyUsage;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.pki.keystores.KeyStoreReader.KEYSTORE_JKS_FILE_NAME;
@@ -112,11 +115,41 @@ public class CertificateAdapter {
         dto.setStartDate(certDTO.getStartDate());
         dto.setSubjectAlias("");
         dto.setSurname(certDTO.getSurname());
-        dto.setKeyUsages(convertKeyUsage(certDTO.getKeyUsage()));
+//        dto.setKeyUsages(convertKeyUsage(certDTO.getKeyUsage()));
+        dto.setKeyUsages(createList(certDTO.getKeyUsage()));
         dto.setType(certDTO.getCertificateType());
+
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        String end = dateFormat.format(certDTO.getEndDate());
+//        String start = dateFormat.format(certDTO.getEndDate());
+//        try {
+//            dto.setEndDate(dateFormat.parse(start));
+//            dto.setEndDate(dateFormat.parse(end));
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+
+//        certificateDataDTO.setEndDate(new Date(certificateDTO.getEndDate().getYear(), certificateDTO.getEndDate().getMonth(), certificateDTO.getEndDate().getDay()));
+
 
         return dto;
     }
+
+    private static List<Boolean> createList(KeyUsageDTO keyUsage) {
+        List<Boolean> list = new ArrayList<>();
+        list.add(keyUsage.isDigitalSignature());
+        list.add(keyUsage.isNonRepudiation());
+        list.add(keyUsage.isKeyEncipherment());
+        list.add(keyUsage.isDataEncipherment());
+        list.add(keyUsage.isKeyAgreement());
+        list.add(keyUsage.isCertificateSigning());
+        list.add(keyUsage.isCrlSign());
+        list.add(keyUsage.isEncipherOnly());
+        list.add(keyUsage.isDecipherOnly());
+
+        return list;
+    }
+
     public static List<Integer> convertKeyUsage(KeyUsageDTO keyUsageDTO) {
 
         List<Integer> keyUsage = new ArrayList<>();

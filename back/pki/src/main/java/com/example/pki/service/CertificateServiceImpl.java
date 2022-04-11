@@ -41,14 +41,15 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void issueCertificate(CertificateDataDTO certificateDataDTO) {
+        certificateDataDTO.setIssuerAlias(certificateRepository.getAliasForCertificate(certificateDataDTO.getIssuerAlias()));
         KeyStoreReader reader = new KeyStoreReader();
         KeyPair keyPairIssuer = generateKeyPair();
+        SubjectData subjectData = generateSubjectData(certificateDataDTO, keyPairIssuer.getPublic());
         IssuerData issuerData;
         if (certificateDataDTO.getType() == 1)
             issuerData = generateRootIssuerData(certificateDataDTO, keyPairIssuer.getPrivate());
         else
             issuerData = reader.readIssuerFromStore(KEYSTORE_JKS_FILE_NAME, certificateDataDTO.getIssuerAlias(), JKS_PASS.toCharArray(), certificateDataDTO.getKeyPass().toCharArray());
-        SubjectData subjectData = generateSubjectData(certificateDataDTO, keyPairIssuer.getPublic());
 
         //Generise se sertifikat za subjekta, potpisan od strane issuer-a
         CertificateGenerator cg = new CertificateGenerator();
@@ -156,11 +157,14 @@ public class CertificateServiceImpl implements CertificateService {
         builder.addRDN(BCStyle.E, dto.getE());
         //UID (USER ID) je ID korisnika
         builder.addRDN(BCStyle.UID, dto.getSubjectAlias());
+        builder.addRDN(BCStyle.PSEUDONYM, "root");
 
         //Kreiraju se podaci za issuer-a, sto u ovom slucaju ukljucuje:
         // - privatni kljuc koji ce se koristiti da potpise sertifikat koji se izdaje
         // - podatke o vlasniku sertifikata koji izdaje nov sertifikat
-        return new IssuerData(issuerKey, builder.build());
+        IssuerData issuerData = new IssuerData(issuerKey, null);
+        issuerData.setX500name(builder.build());
+        return issuerData;
     }
 
     private SubjectData generateSubjectData(CertificateDataDTO dto, PublicKey publicKey) {

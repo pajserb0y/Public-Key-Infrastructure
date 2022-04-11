@@ -151,7 +151,7 @@ public class KeyStoreReader {
 		X500Name issuerData;
 		try {
 			issuerData = new JcaX509CertificateHolder(certificate).getIssuer();
-			RDN aliasRDN = issuerData.getRDNs(BCStyle.UID)[0];
+			RDN aliasRDN = issuerData.getRDNs(BCStyle.PSEUDONYM)[0];
 			String issuerAlias = IETFUtils.valueToString(aliasRDN.getFirst().getValue());
 			if(issuerAlias.equals("root"))
 				return true;
