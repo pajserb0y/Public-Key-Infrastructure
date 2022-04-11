@@ -2,7 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service'
+<<<<<<< Updated upstream
 
+=======
+import { DatePipe } from '@angular/common'
+import { KeyUsage } from '../model/keyUsage';
+>>>>>>> Stashed changes
 
 @Component({
   selector: 'app-new-certificate',
@@ -67,11 +72,11 @@ export class NewCertificateComponent implements OnInit {
     
   }
 
-  private initKeyUsageForm() {
+  public initKeyUsageForm() {
     this.createRootCertificateKeyUsageExtensionsForm = this.formBuilder.group({
       keyUsage: this.formBuilder.group({
-        certificateSigning: new FormControl(false),
-        crlSign: new FormControl(false),
+        certificateSigning: this.newCertRegime && this.newCertificate.certificateType == 1 ||  this.newCertificate.certificateType == 2 ? new FormControl(true) : new FormControl(false),
+        crlSign: this.newCertRegime && this.newCertificate.certificateType == 1 ||  this.newCertificate.certificateType == 2 ? new FormControl(true) : new FormControl(false),
         dataEncipherment: new FormControl(false),
         decipherOnly: new FormControl(false),
         digitalSignature: new FormControl(false),
@@ -81,6 +86,7 @@ export class NewCertificateComponent implements OnInit {
         nonRepudiation: new FormControl(false),
       }),
     });
+    
   }
 
   private initExtendedKeyUsageForm() {
