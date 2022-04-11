@@ -1,19 +1,18 @@
-<p>new-certificate works!</p>
 <div *ngIf="role != 'ROLE_END_USER'"  class="stepper">
     <h1>New Certificate</h1>
   
-  <form name="rform" #registerForm="ngForm">
+  <form  name="rform" #registerForm="ngForm">
       <mat-stepper orientation="vertical" linear #stepper >
         <mat-step label="Fill in certificate info">
-        <mat-radio-group  [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
-            <mat-radio-button *ngIf="role == 'ROLE_ADMIN'" checked="true" value="1">Root Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
-            <mat-radio-button *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
+        <mat-radio-group *ngIf="newCertRegime == true" [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role == 'ROLE_ADMIN'"  value="1">Root Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
           </mat-radio-group> 
             
             <ul>
               <li>
-                <mat-form-field *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
+                <mat-form-field  *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
                   <mat-label>Choose issuer</mat-label>
                   <mat-select name="CACertificate" [(ngModel)]="newCertificate.issuer" required>
                     <mat-option *ngFor="let CACertificate of CACertificates" [value]="CACertificate.serialNumber">
@@ -158,7 +157,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox formControlName="certificateSigning" [checked]="newCertificate.keyUsage.certificateSigning" (change)="newCertificate.keyUsage.certificateSigning = !newCertificate.keyUsage.certificateSigning">
+                                    <mat-checkbox formControlName="certificateSigning" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.certificateSigning" (change)="newCertificate.keyUsage.certificateSigning = !newCertificate.keyUsage.certificateSigning">
                                         Certificate Signing
                                     </mat-checkbox>
                                 </div>
@@ -167,7 +166,7 @@
                         <tr>
                             <td>
                                 <div fxLayout="column" fxFlex="50">
-                                    <mat-checkbox formControlName="crlSign" [checked]="newCertificate.keyUsage.crlSign" (change)="newCertificate.keyUsage.crlSign = !newCertificate.keyUsage.crlSign">
+                                    <mat-checkbox formControlName="crlSign" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.crlSign" (change)="newCertificate.keyUsage.crlSign = !newCertificate.keyUsage.crlSign">
                                         CRL Sign
                                     </mat-checkbox>
                                 </div>
@@ -206,6 +205,6 @@
               
             </ul>
             <div>
-              <button mat-button (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
+              <button mat-button *ngIf="newCertRegime == true" (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
             </div>
   

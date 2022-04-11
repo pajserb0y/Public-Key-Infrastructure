@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Certificate } from '../model/certificate';
 import { CertificateService } from '../service/certificate.service'
 import { DatePipe } from '@angular/common'
+import { KeyUsage } from '../model/keyUsage';
 
 @Component({
   selector: 'app-new-certificate',
@@ -12,6 +13,7 @@ import { DatePipe } from '@angular/common'
 export class NewCertificateComponent implements OnInit {
 
   CACertificates : Certificate[] = [];
+  @Input() newCertRegime : boolean = true;
  @Input() newCertificate : Certificate = {
     issuer: '',
     serialNumber: '',
@@ -65,11 +67,11 @@ export class NewCertificateComponent implements OnInit {
     
   }
 
-  private initKeyUsageForm() {
+  public initKeyUsageForm() {
     this.createRootCertificateKeyUsageExtensionsForm = this.formBuilder.group({
       keyUsage: this.formBuilder.group({
-        certificateSigning: new FormControl(false),
-        crlSign: new FormControl(false),
+        certificateSigning: this.newCertRegime && this.newCertificate.certificateType == 1 ||  this.newCertificate.certificateType == 2 ? new FormControl(true) : new FormControl(false),
+        crlSign: this.newCertRegime && this.newCertificate.certificateType == 1 ||  this.newCertificate.certificateType == 2 ? new FormControl(true) : new FormControl(false),
         dataEncipherment: new FormControl(false),
         decipherOnly: new FormControl(false),
         digitalSignature: new FormControl(false),
@@ -79,6 +81,7 @@ export class NewCertificateComponent implements OnInit {
         nonRepudiation: new FormControl(false),
       }),
     });
+    
   }
 
   private initExtendedKeyUsageForm() {
