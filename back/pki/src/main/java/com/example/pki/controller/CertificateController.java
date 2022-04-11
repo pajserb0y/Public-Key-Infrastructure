@@ -40,7 +40,7 @@ public class CertificateController {
         return new ResponseEntity<>(certificateService.getAll(), HttpStatus.OK);
     }
 
-    @PutMapping("/revoke/{serialNumber}")
+    @PostMapping("/revoke/{serialNumber}")
     public ResponseEntity<?> revoke(@PathVariable String serialNumber) throws CertificateEncodingException, KeyStoreException {
         certificateService.revoke(serialNumber);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -55,11 +55,13 @@ public class CertificateController {
 
     @PostMapping("/allCertificatesForUser/{email}")
     public ResponseEntity<List<CertificateDTO>> allCertificatesForUser(@PathVariable String email) {
-        return new ResponseEntity<>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
+
+        return new ResponseEntity<List<CertificateDTO>>(certificateService.allCertificatesForUser(email), HttpStatus.OK);
+
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_admin', 'ROLE_user')")
-    @PostMapping("/download")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER', 'ROLE_END_USER')")
+    @PostMapping("/downloadCertificate")
     public ResponseEntity<Resource> downloadCertificate(@RequestBody CertificateDTO certToDownload) {
 
         Resource file = null;

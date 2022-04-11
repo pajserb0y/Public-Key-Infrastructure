@@ -4,6 +4,7 @@ import com.example.pki.model.CertificateInDatabase;
 import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.dto.CertificateDTO;
 import com.example.pki.model.dto.KeyUsageDTO;
+import org.bouncycastle.asn1.x509.KeyUsage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class CertificateAdapter {
         dto.setEmail(cert.getE());
         dto.setStartDate(cert.getStartDate());
         dto.setEndDate(cert.getEndDate());
-        dto.setKeyUsage(null);
+        //dto.setKeyUsage(convertKeyUsageDTO(cert.getKeyUsage()));
         dto.setCertificateType(cert.getType());
 
         return dto;
@@ -114,6 +115,34 @@ public class CertificateAdapter {
             keyUsage.add(64);
 
         return keyUsage;
+    }
+
+    public static KeyUsageDTO convertKeyUsageDTO(List<Integer> keyUsages) {
+
+        KeyUsageDTO keyUsageDTO = null;
+        for (Integer keyUsage : keyUsages) {
+            if(keyUsage == 4)
+                keyUsageDTO.setCertificateSigning(true);
+            if(keyUsage == 2)
+                keyUsageDTO.setCrlSign(true);
+            if(keyUsage == 16)
+                keyUsageDTO.setDataEncipherment(true);
+            if(keyUsage == 32768)
+                keyUsageDTO.setDecipherOnly(true);
+            if(keyUsage == 128)
+                keyUsageDTO.setDigitalSignature(true);
+            if(keyUsage == 1 )
+                keyUsageDTO.setEncipherOnly(true);
+            if(keyUsage == 8)
+                keyUsageDTO.setKeyAgreement(true);
+            if(keyUsage == 32)
+                keyUsageDTO.setKeyEncipherment(true);
+            if(keyUsage == 64)
+                keyUsageDTO.setNonRepudiation(true);
+        }
+
+
+        return keyUsageDTO;
     }
 
 }

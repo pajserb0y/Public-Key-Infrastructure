@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common'
 export class NewCertificateComponent implements OnInit {
 
   CACertificates : Certificate[] = [];
+  @Input() newCertRegime : boolean = true;
  @Input() newCertificate : Certificate = {
     issuer: '',
     serialNumber: '',
@@ -103,6 +104,7 @@ export class NewCertificateComponent implements OnInit {
 
   submitCertificate(certificate : Certificate)
   {
+    this.convertDate()
     this._certificateService.submitCertificate(certificate)
       .subscribe(() => {},
         error => this.errorMessage = <any>error);
