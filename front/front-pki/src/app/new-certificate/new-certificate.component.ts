@@ -103,6 +103,8 @@ export class NewCertificateComponent implements OnInit {
 
   submitCertificate(certificate : Certificate)
   {
+    certificate.startDate = this.rangeTerm.value.startDate;
+    certificate.endDate = this.rangeTerm.value.endDate;
     this._certificateService.submitCertificate(certificate)
       .subscribe(() => {},
         error => this.errorMessage = <any>error);

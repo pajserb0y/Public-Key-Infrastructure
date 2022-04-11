@@ -33,7 +33,9 @@ public class CertificateInDatabase {
 //    @JsonIgnore
     @Column(unique = true)
     private String subjectAlias;
+    @Temporal(TemporalType.DATE)
     private Date startDate;
+    @Temporal(TemporalType.DATE)
     private Date endDate;
     private String keyPass;
     private boolean isRevoked;
