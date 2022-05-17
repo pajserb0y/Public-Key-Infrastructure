@@ -1,0 +1,30 @@
+.mat-row:hover {
+    background-color: rgb(236, 234, 234);
+    cursor: pointer;
+  }
+
+
+.selected {
+    background-color: red!important;
+  }
+
+.reserve {
+    margin-top: -20%;
+}
+
+.infoDiv{
+  margin-bottom: 8%;
+  position: sticky;
+}
+
+
+.tableView {
+    height: 400px;
+    width: 200%;
+    overflow: auto;
+}
+
+table {
+  width: 100%;
+}
+

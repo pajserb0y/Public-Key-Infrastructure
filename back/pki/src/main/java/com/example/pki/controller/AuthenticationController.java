@@ -38,6 +38,8 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@RequestBody UserCredentials userCredentials) {
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se AuthenticationException
         Authentication auth;
+        System.out.println(userCredentials.getEmail());
+        System.out.println(userCredentials.getPassword());
         try {
             auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userCredentials.getEmail(), userCredentials.getPassword()));
         } catch (BadCredentialsException e) {
@@ -48,8 +50,8 @@ public class AuthenticationController {
 
         User user = (User) auth.getPrincipal();
         String jwt = tokenUtils.generateToken(user.getEmail(), user.getRole());
-
-        return new ResponseEntity<>(new UserTokenDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), jwt), HttpStatus.OK);
+        System.out.println(jwt);
+        return new ResponseEntity<>(jwt, HttpStatus.OK);
     }
 
     @PostMapping(value="/register")

@@ -1,15 +1,13 @@
 package com.example.pki.model.data;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -25,13 +23,13 @@ public class CertificateDataDTO {
     private String o;
     private String c;
     private String e;
-//    private String s;
+    private String s;
 //    @JsonIgnore
     private String subjectAlias;
-    private String startDate;
-    private String endDate;
-    private String jksPass;
-    private List<Integer> keyUsages;
-    private Integer type;
+    private Date startDate;
+    private Date endDate;
+    private String keyPass;
+    private List<Boolean> keyUsages;
+    private Integer type;   //1-root, 2-inter, 3-end
 
 }

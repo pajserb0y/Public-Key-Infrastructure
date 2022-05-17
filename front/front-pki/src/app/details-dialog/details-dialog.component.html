@@ -1,0 +1,7 @@
+<h1 mat-dialog-title>Certificate {{data.certificate.serialNumber}}</h1>
+<div mat-dialog-content>
+<app-new-certificate [newCertRegime]="false" [newCertificate]="data.certificate"></app-new-certificate>
+</div>
+<div mat-dialog-actions>
+  <button mat-button  cdkFocusInitial>Ok</button>
+</div>

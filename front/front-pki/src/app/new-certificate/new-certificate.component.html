@@ -1,0 +1,210 @@
+<div *ngIf="role != 'ROLE_END_USER'"  class="stepper">
+    <h1>New Certificate</h1>
+  
+  <form  name="rform" #registerForm="ngForm">
+      <mat-stepper orientation="vertical" linear #stepper >
+        <mat-step label="Fill in certificate info">
+        <mat-radio-group *ngIf="newCertRegime == true" [(ngModel)]="newCertificate.certificateType" name="cerfiticateType" layout = "row" aria-label="Select an option" >
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role == 'ROLE_ADMIN'"  value="1">Root Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'"  value="2">Intermediate Certificate</mat-radio-button>
+            <mat-radio-button (change)="initKeyUsageForm()" *ngIf="role != 'ROLE_END_USER'" value="3">End Entity Certificate</mat-radio-button>
+          </mat-radio-group> 
+            
+            <ul>
+              <li>
+                <mat-form-field  *ngIf="role != 'ROLE_END_USER' && newCertificate.certificateType != 1 " appearance="fill">
+                  <mat-label>Choose issuer</mat-label>
+                  <mat-select name="CACertificate" [(ngModel)]="newCertificate.issuer" required>
+                    <mat-option *ngFor="let CACertificate of CACertificates" [value]="CACertificate.serialNumber">
+                      {{CACertificate.serialNumber}}
+                    </mat-option>
+                  </mat-select>
+
+                </mat-form-field>
+              </li>
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Country name</mat-label>
+                  <input matInput type="text" name="country" [(ngModel)]="newCertificate.country" required>
+                  <mat-hint *ngIf="newCertificate.country == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+             
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Organization</mat-label>
+                  <input matInput type="text" name="organization" [(ngModel)]="newCertificate.organization" required>
+                  <mat-hint *ngIf="newCertificate.organization == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Organization Unit</mat-label>
+                  <input matInput type="text" name="organizationUnit" [(ngModel)]="newCertificate.organizationUnit" required>
+                  <mat-hint *ngIf="newCertificate.organizationUnit == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Common name</mat-label>
+                  <input matInput type="text" name="commonName" [(ngModel)]="newCertificate.commonName" required>
+                  <mat-hint *ngIf="newCertificate.commonName == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+              <li>
+                <mat-form-field *ngIf=" newCertificate.certificateType == 3 " appearance="fill">
+                  <mat-label>Surname</mat-label>
+                  <input matInput type="text" name="surname" [(ngModel)]="newCertificate.surname" required>
+                  <mat-hint *ngIf="newCertificate.surname == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
+              <!--<li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Surname</mat-label>
+                  <input matInput type="text" name="surname" [(ngModel)]="newCertificate.surname" required>
+                  <mat-hint *ngIf="newCertificate.surname == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>-->
+
+              <li>
+                <mat-form-field appearance="fill">
+                  <mat-label>Email</mat-label>
+                  <input matInput type="text" name="email" [(ngModel)]="newCertificate.email" required>
+                  <mat-hint *ngIf="newCertificate.email == ''">Required</mat-hint>
+                </mat-form-field>
+              </li>
+
+              <li>
+               <!-- <div style="  margin-left: 10%; font-size: larger; position: static;">
+                    <h1>Add Available Terms:</h1>-->
+                    <form name="DateRange" #FreeTermform="ngForm"> 
+                      <div>
+                        <mat-form-field appearance="fill">
+                          <mat-label>Select available date range</mat-label>
+                          <mat-date-range-input  [formGroup]="rangeTerm" [rangePicker]="picker">
+                            <input matStartDate  formControlName="startDate" placeholder="Start date" required >
+                            <input matEndDate formControlName="endDate" placeholder="End date"  (dateChange)="checkAvailability()" required>
+                          </mat-date-range-input>
+                          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                          <mat-date-range-picker #picker></mat-date-range-picker>
+                          <mat-error *ngIf="rangeTerm.controls.startDate.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+                          <mat-error *ngIf="rangeTerm.controls.endDate.hasError('matEndDateInvalid')">Invalid end date</mat-error>
+                        </mat-form-field>
+                        </div>
+                    </form>
+            
+              </li>
+              <br/>
+              
+                
+              <li>
+                <p>
+                    Select at least one key usage extension.
+                </p>
+                <mat-divider></mat-divider>
+                <br>
+                <form fxLayout="column" [formGroup]="createRootCertificateKeyUsageExtensionsForm">
+
+                    <table style="margin-left: 20px;" class="form-full-width" formGroupName="keyUsage">
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="digitalSignature" [checked]="newCertificate.keyUsage.digitalSignature" (change)="newCertificate.keyUsage.digitalSignature = !newCertificate.keyUsage.digitalSignature">
+                                        Digital Signature
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="nonRepudiation" [checked]="newCertificate.keyUsage.nonRepudiation" (change)="newCertificate.keyUsage.nonRepudiation = !newCertificate.keyUsage.nonRepudiation">
+                                        Non Repudiation
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="keyEncipherment" [checked]="newCertificate.keyUsage.keyEncipherment" (change)="newCertificate.keyUsage.keyEncipherment = !newCertificate.keyUsage.keyEncipherment">
+                                        Key Encipherment
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="dataEncipherment" [checked]="newCertificate.keyUsage.dataEncipherment" (change)="newCertificate.keyUsage.dataEncipherment = !newCertificate.keyUsage.dataEncipherment">
+                                        Data Encipherment
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="keyAgreement" [checked]="newCertificate.keyUsage.keyAgreement" (change)="newCertificate.keyUsage.keyAgreement = !newCertificate.keyUsage.keyAgreement">
+                                        Key Agreement
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="certificateSigning" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.certificateSigning" (change)="newCertificate.keyUsage.certificateSigning = !newCertificate.keyUsage.certificateSigning">
+                                        Certificate Signing
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="crlSign" [disabled]="newCertificate.certificateType == 1 || newCertificate.certificateType == 2" [checked]="newCertificate.keyUsage.crlSign" (change)="newCertificate.keyUsage.crlSign = !newCertificate.keyUsage.crlSign">
+                                        CRL Sign
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="encipherOnly" [checked]="newCertificate.keyUsage.encipherOnly" (change)="newCertificate.keyUsage.encipherOnly = !newCertificate.keyUsage.encipherOnly">
+                                        Encipher Only
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div fxLayout="column" fxFlex="50">
+                                    <mat-checkbox formControlName="decipherOnly" [checked]="newCertificate.keyUsage.decipherOnly" (change)="newCertificate.keyUsage.decipherOnly = !newCertificate.keyUsage.decipherOnly">
+                                        Decipher Only
+                                    </mat-checkbox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <mat-error
+                                    *ngIf="createRootCertificateKeyUsageExtensionsForm.errors && createRootCertificateKeyUsageExtensionsForm.errors['validError']">
+                                    At least one extension needs to be checked.
+                                </mat-error>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                        
+              </li>
+              
+            </ul>
+            <div>
+              <button mat-button *ngIf="newCertRegime == true" (click)="submitCertificate(newCertificate)"  color="primary">CREATE</button>
+            </div>
+  

@@ -1,0 +1,125 @@
+<mat-grid-list rowHeight="600px" cols="4" >
+
+            <!-- LISTA -->
+  <mat-grid-tile   colspan="3" >
+  <div style="margin-right: 43%; margin-top: 0%;">
+    <h2>Certificates</h2>    
+
+   <!--  <div class="tableViewNonCustomer" *ngIf="role != 'ROLE_CUSTOMER' && role != 'ROLE_ADMIN' && role != 'ROLE_BOAT_OWNER' && role != 'ROLE_WEEKEND_HOUSE_OWNER' && role != 'ROLE_INSTRUCTOR'"> -->
+    <div class="tableView" [ngClass]="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER' || role == 'ROLE_END_USER' ? 'tableView': 'tableViewNonCustomer'" >
+    <table id="myTable" mat-table [dataSource]="certificates" class="mat-elevation-z8" >
+        <ng-container matColumnDef="serialNumber">
+            <mat-header-cell *matHeaderCellDef > serial Number </mat-header-cell>
+                <mat-cell *matCellDef="let element" >
+                  <ng-container >{{element.serialNumber}}</ng-container>
+                    </mat-cell>
+          </ng-container>
+    
+          <ng-container matColumnDef="subjectName">
+            <mat-header-cell *matHeaderCellDef> subject Name </mat-header-cell>
+                <mat-cell *matCellDef="let element" >
+                  <ng-container >{{element.commonName}}</ng-container>
+                    </mat-cell>
+          </ng-container>
+    
+          <ng-container matColumnDef="issuerName">
+            <mat-header-cell *matHeaderCellDef > issuer Alias </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.issuer}} </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="validFrom">
+            <mat-header-cell *matHeaderCellDef> valid From</mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.startDate | date: 'shortDate' }} </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="validTo">
+            <mat-header-cell *matHeaderCellDef > valid To </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.endDate | date: 'shortDate'}} </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="viewDetails">
+            <mat-header-cell *matHeaderCellDef> View Details </mat-header-cell>
+            <mat-cell *matCellDef="let element"> 
+            <button mat-button (click)="viewDetails(element)">
+              View Details
+            </button>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="revoke">
+            <mat-header-cell *matHeaderCellDef> Revoke </mat-header-cell>
+            <mat-cell *matCellDef="let element"> 
+              <button mat-button (click)="revoke(element)">
+                Revoke
+              </button>
+              </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="download">
+            <mat-header-cell *matHeaderCellDef> Download </mat-header-cell>
+            <mat-cell *matCellDef="let element"> 
+              <button mat-button  (click)="download(element)">
+                Download
+              </button>
+              </mat-cell>
+          </ng-container>
+          
+    
+          <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" ></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row><!--<mat-row *matRowDef="let row; columns: displayedColumns;" (click)="revoke(row.certificate)" [class.selected]="row.selected"></mat-row>-->
+      </table>
+    </div>
+    </div>
+    </mat-grid-tile>
+
+
+          <!-- REZERVISANJE
+  <mat-grid-tile colspan="1"   >
+  <div class="reserve" *ngIf="role === 'ROLE_CUSTOMER'">
+    <h1>Reserve now</h1>
+    <form name="rform" #registerForm="ngForm">       
+
+      <mat-form-field appearance="fill">
+        <mat-label>Select date</mat-label>
+        <mat-date-range-input [min]="minDate" [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date" >
+          <input matEndDate formControlName="end" placeholder="End date"  (dateChange)="findAvailableHousesForSelectedTerm()">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+
+        <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+        <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
+      </mat-form-field>
+
+      <div>
+      <mat-form-field appearance="fill" style="width: 150px;">
+        <mat-label>Number of guests</mat-label>
+        <input matInput type="number" value="1" min="1" [max]='selectedHouseInfo.bedNumber' name="peopleNumber" [(ngModel)]="houseReservation.peopleNumber" required
+                [disabled]="!show || range.value.start == null">
+        <mat-icon matSuffix></mat-icon>
+      </mat-form-field></div>
+
+      <div>
+        <mat-form-field style="width: 150px;" appearance="fill">
+        <mat-label style="padding-top: 20px;" for="services">List of our services</mat-label>
+        <mat-select [disabled]="!show || range.value.start == null" name="services" [(ngModel)]="houseReservation.services" multiple>
+          <mat-option checkboxPosition="before" *ngFor="let service of selectedHouseInfo.additionalServices" [value]="service" (onSelectionChange)="calculateTotalPrice($event)">
+              {{ service.name }} - {{ service.price }}
+          </mat-option>
+        </mat-select> 
+      </mat-form-field>
+    </div>
+
+    <div ><label><b>Total price (with discount): </b>  <span *ngIf="show && range.value.start != null">{{houseReservation.price}}</span></label></div>                
+
+      <p style="margin-top: 70px;"><b>Before reserving, please check info you filled</b></p>
+      <div>
+        <button mat-raised-button color="accent" (click)="reserve()" 
+                [disabled]="!show || range.value.start === null || range.value.end === null || houseReservation.peopleNumber === 0">Reserve</button>
+      </div>
+
+    </form>
+  </div>
+  </mat-grid-tile>
+ -->

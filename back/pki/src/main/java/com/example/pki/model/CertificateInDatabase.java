@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "certificates")
@@ -28,16 +29,19 @@ public class CertificateInDatabase {
     private String o;
     private String c;
     private String e;
-    //    private String s;
+    private String s;
 //    @JsonIgnore
     @Column(unique = true)
     private String subjectAlias;
-    private String startDate;
-    private String endDate;
-    private String jksPass;
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
+    private String keyPass;
     private boolean isRevoked;
     private Integer type;
 
     @ManyToOne
     private CertificateInDatabase issuer;
+
 }

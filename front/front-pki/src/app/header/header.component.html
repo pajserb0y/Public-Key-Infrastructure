@@ -1,0 +1,13 @@
+<mat-toolbar color="primary" class="navbar">
+    <button mat-button style="font-size : 25px" [routerLink]="['']">PKI</button>
+    <button *ngIf="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER'|| role == 'ROLE_END_USER'"
+             style="margin-left : 25px" mat-button [routerLink]="['all-certificates']">All Certificates</button>
+    <button *ngIf="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER'"
+             style="margin-left : 25px" mat-button [routerLink]="['new-certificate']">New Certificate</button>
+    <span class="example-spacer" ></span>
+
+    <button *ngIf="role != 'ROLE_INTER_USER' && role != 'ROLE_ADMIN' && role != 'ROLE_END_USER'" mat-button [routerLink]="['register']">Register</button>
+    <button *ngIf="role != 'ROLE_INTER_USER' && role != 'ROLE_ADMIN' && role != 'ROLE_END_USER'" mat-raised-button [routerLink]="['login']">Log in</button>
+    <button *ngIf="role == 'ROLE_ADMIN' || role == 'ROLE_INTER_USER'|| role == 'ROLE_END_USER'" mat-raised-button mat-button (click)="logOut()">Log out</button>
+    </mat-toolbar>
+
