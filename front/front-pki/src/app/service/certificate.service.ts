@@ -13,7 +13,7 @@ export class CertificateService {
 
 
 
-  private _certificates = 'http://localhost:8080/certificates';
+  private _certificates = 'https://localhost:8080/certificates';
   private _allCertificatesForUser = this._certificates + '/allCertificatesForUser/';
   private _createCertificate = this._certificates + '/createCertificates';
   private _getAllCACertificates = this._certificates + '/getAllCACertificates';

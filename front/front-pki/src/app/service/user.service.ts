@@ -11,7 +11,7 @@ const headers = { 'content-type': 'application/json'}
 })
 export class UserService {
 
-  private _baseUrl = 'http://localhost:8080/';
+  private _baseUrl = 'https://localhost:8080/';
   private _registration = this._baseUrl + 'api/register';
   private _login = this._baseUrl + 'auth/login';  
 
