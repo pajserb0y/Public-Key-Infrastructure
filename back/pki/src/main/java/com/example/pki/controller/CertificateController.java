@@ -31,7 +31,6 @@ public class CertificateController {
     private CertificateRepository certificateRepository;
 
 
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/newCertificate")
     public ResponseEntity<?> newCertificate(@RequestBody CertificateDTO certificateDTO) {
         CertificateDataDTO certificateDataDTO = CertificateAdapter.covertDtoToDataDto(certificateDTO);
@@ -39,7 +38,7 @@ public class CertificateController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     //Certificate Signing, Off-line CRL Signing, CRL Signing (06)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('getAllCertificates')")
     @GetMapping("/getAllCertificates")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(certificateService.getAll(), HttpStatus.OK);
@@ -52,7 +51,7 @@ public class CertificateController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER')")
+    @PreAuthorize("hasAuthority('getAllCACertificates')")
     @GetMapping("/getAllCACertificates")
     public ResponseEntity<List<CertificateDTO>> getAllCACertificates() {
         return new ResponseEntity<>(certificateService.getAllValidCACertificates(), HttpStatus.OK);
@@ -65,7 +64,7 @@ public class CertificateController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_INTER_USER', 'ROLE_END_USER')")
+    @PreAuthorize("hasAuthority('downloadCertificate')")
     @GetMapping("/downloadCertificate/{serialNumber}")
     public ResponseEntity<Resource> downloadCertificate(@PathVariable String serialNumber) {
         Resource file = null;

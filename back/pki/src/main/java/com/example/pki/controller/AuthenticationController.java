@@ -1,12 +1,15 @@
 package com.example.pki.controller;
 
+import com.example.pki.model.ConfirmationToken;
 import com.example.pki.model.User;
 import com.example.pki.model.dto.UserCredentials;
 import com.example.pki.model.dto.UserDTO;
 import com.example.pki.model.dto.UserTokenDTO;
+import com.example.pki.repository.ConfirmationTokenRepository;
 import com.example.pki.security.tokenUtils.JwtTokenUtils;
 import com.example.pki.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +17,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+
+import javax.validation.Valid;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,29 +44,126 @@ public class AuthenticationController {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
     }
+    @Autowired
+    ConfirmationTokenRepository confirmationTokenRepository;
+
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserCredentials userCredentials) {
+    public String login(@RequestBody UserCredentials authenticationRequest) {
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se AuthenticationException
-        Authentication auth;
-        System.out.println(userCredentials.getEmail());
-        System.out.println(userCredentials.getPassword());
+        if(isUserBlocked(authenticationRequest.getEmail()))
+            return "Your account is currently blocked. Try next day again.";
+        String salt = findSaltForUsername(authenticationRequest.getEmail());
+        Authentication authentication = null;
         try {
-            auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userCredentials.getEmail(), userCredentials.getPassword()));
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    authenticationRequest.getEmail(), authenticationRequest.getPassword().concat(salt)));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            refreshMissedPasswordCounter(authenticationRequest.getEmail());
+        } catch (AuthenticationException e) {
+            if(userService.isPinOk(authenticationRequest.getEmail(), authenticationRequest.getPin()))
+                SecurityContextHolder.getContext().setAuthentication(null);
+            else {
+                increaseMissedPasswordCounter(authenticationRequest.getEmail());
+                return "Invalid username, password or pin.";
+            }
         }
-        // Ukoliko je autentifikacija uspesna, ubaci korisnika u trenutni security kontekst
-        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        User user = (User) auth.getPrincipal();
-        String jwt = tokenUtils.generateToken(user.getEmail(), user.getRole());
-        System.out.println(jwt);
-        return new ResponseEntity<>(jwt, HttpStatus.OK);
+        User user;
+        if(authentication == null)
+            user = userService.findByEmail(authenticationRequest.getEmail());
+        else
+            user = (User) authentication.getPrincipal();
+        if (user.getForgotten() == 1) {
+            user.setForgotten(2);
+            userService.saveUser(user);
+        }
+        else if (user.getForgotten() == 2)
+            return "You did not changed password first time. If you want to log in, refresh again your password.";
+        String jwt = tokenUtils.generateToken(user.getUsername(), user.getRole());
+
+        return jwt;
     }
 
     @PostMapping(value="/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDto) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDto, BindingResult res) {
+        if(res.hasErrors())
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return userService.save(userDto);
+    }
+
+    private boolean isUserBlocked(String email) {
+        User user = userService.findByEmail(email);
+        if(user != null && user.getBlockedDate() != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(user.getBlockedDate());
+            c.add(Calendar.DATE, 1);
+            if (user.isBlocked() && c.getTime().after(new Date()))
+                return true;
+            else if (user.isBlocked() && c.getTime().before(new Date())) {
+                user.setBlocked(false);
+                user.setMissedPasswordCounter(0);
+                userService.saveUser(user);
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    private void increaseMissedPasswordCounter(String email) {
+        User user = userService.findByEmail(email);
+        if(user != null) {
+            user.setMissedPasswordCounter(user.getMissedPasswordCounter() + 1);
+            if (user.getMissedPasswordCounter() > 5) {
+                user.setBlocked(true);
+                user.setBlockedDate(new Date());
+            }
+            userService.saveUser(user);
+        }
+    }
+
+    private void refreshMissedPasswordCounter(String email) {
+        User user = userService.findByEmail(email);
+        if(user != null) {
+            user.setMissedPasswordCounter(0);
+            userService.saveUser(user);
+        }
+    }
+
+    private String findSaltForUsername(String email) {
+        if(userService.findByEmail(email) != null)
+            return userService.findByEmail(email).getSalt();
+        return "";
+    }
+
+    @GetMapping(path = "/getAllUsernames")
+    public Set<String> getAllUsername() {
+        Set<String> usernameList = new HashSet<>();
+        usernameList.addAll(userService.findAllEmails());
+
+        return usernameList;
+    }
+
+    @GetMapping(path = "/password/blackList/{pass}")
+    public ResponseEntity<?> checkPasswordBlackList(@PathVariable String pass) throws URISyntaxException, IOException {
+        return userService.isPasswordInBlackList(pass);
+    }
+
+    @GetMapping(path = "/activate")
+    public ResponseEntity<?> activateClientAccount(WebRequest request, @RequestParam("token") String hashCode) {
+        ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(hashCode);
+        Long secs = (token.getCreatedDate().getTime() - new Date().getTime())/1000;
+        User verificationClient = token.getUser();
+        if (verificationClient == null || verificationClient.isActivated() || secs > 3600 ) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        verificationClient.setActivated(true);
+        userService.saveUser(verificationClient);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "https://localhost:4100");
+        return new ResponseEntity<String>(headers, HttpStatus.OK);
     }
 }
