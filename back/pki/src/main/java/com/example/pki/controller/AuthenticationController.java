@@ -2,6 +2,7 @@ package com.example.pki.controller;
 
 import com.example.pki.model.ConfirmationToken;
 import com.example.pki.model.User;
+import com.example.pki.model.dto.EmailDto;
 import com.example.pki.model.dto.UserCredentials;
 import com.example.pki.model.dto.UserDTO;
 import com.example.pki.model.dto.UserTokenDTO;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -165,5 +167,24 @@ public class AuthenticationController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "https://localhost:4100");
         return new ResponseEntity<String>(headers, HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/newPassword")
+    public ResponseEntity<?> sendNewPassword(@RequestBody EmailDto dto) {
+        if(userService.findByEmail(dto.getEmail()) != null)
+            return userService.sendNewPassword(userService.findByEmail(dto.getEmail()));
+        return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasAuthority('userByEmail')")
+    @GetMapping(path = "/email/{email}")
+    public ResponseEntity<?> userByEmail(@PathVariable String email) {
+        return new ResponseEntity<>(userService.findByEmail(email), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('updateUser')")
+    @PostMapping(path = "/update")
+    public ResponseEntity<?> updateUser(@RequestBody UserDTO client) {
+        return userService.update(new User(client));
     }
 }

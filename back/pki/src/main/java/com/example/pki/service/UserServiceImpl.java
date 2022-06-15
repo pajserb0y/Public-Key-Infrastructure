@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
             user.setActivated(false);
             user.setForgotten(0);
             user.setMissedPasswordCounter(0);
-            Role role = roleService.findByName("ROLE_USER");
+            Role role = roleService.findByName("ROLE_INTER_USER");
             user.setRole(role);
             userRepository.save(user);
             emailService.sendActivationMailClientAsync(findByEmail(user.getUsername()));
@@ -95,5 +95,35 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>("Your password has been compromised. Please enter new password.", HttpStatus.OK);
         else
             return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> sendNewPassword(User client) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String password = RandomStringInitializer.generateAlphaNumericString(10);
+        client.setPassword(passwordEncoder.encode(password.concat(client.getSalt())));
+        client.setForgotten(1);
+        client.setPin(RandomStringInitializer.generatePin());
+        saveUser(client);
+        emailService.sendNewPassword(client.getEmail(), password);
+        //emailService.sendPin(client.getEmail(), client.getPin());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> update(User client) {
+        User clientInDb = findByEmail(client.getUsername());
+        clientInDb.setEmail(client.getEmail());
+        clientInDb.setFirstName(client.getFirstName());
+        clientInDb.setLastName(client.getLastName());
+        if (!clientInDb.getPassword().equals(client.getPassword()) || client.getPassword() == "") {
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            clientInDb.setPassword(passwordEncoder.encode(client.getPassword().concat(clientInDb.getSalt())));
+            clientInDb.setForgotten(0);
+            String pin = RandomStringInitializer.generatePin();
+            clientInDb.setPin(passwordEncoder.encode(pin.concat(clientInDb.getSalt())));
+        }
+        saveUser(clientInDb);
+        return new ResponseEntity<>(clientInDb, HttpStatus.OK);
     }
 }

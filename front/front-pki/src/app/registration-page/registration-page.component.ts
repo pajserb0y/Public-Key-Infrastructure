@@ -14,6 +14,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 
+const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
 @Component({
   selector: 'app-registration-page',
@@ -35,6 +36,8 @@ export class RegistrationPageComponent implements OnInit {
   }
   repassword :string = '' ;
   errorMessage : string  = '';
+  blackListPassMessage: string = '';
+  isInBlackList: boolean = false;
 
 
   constructor(public _userService: UserService, private _snackBar: MatSnackBar, private router: Router) { }
@@ -46,16 +49,39 @@ export class RegistrationPageComponent implements OnInit {
       this._userService.registerUser(this.user)
       .subscribe(
         data => {
-          if(data == null)
-            this._snackBar.open('User exists with same email.', 'Close', {duration: 5000});
-          else {
             this.router.navigateByUrl('/').then(() => {
               this._snackBar.open('Registration request successfully submited!', 'Close', {duration: 3000});
-              }); 
-          }
+              });       
         },
-        error => console.log('Error!', error)
+        error => {
+          this._snackBar.open('User exists with same email.', 'Close', {duration: 5000});
+          console.log('Error!', error)
+        }
       )
+  }
+
+  checkPass() {
+    this._userService.checkBlackListPass(this.user.password)
+        .subscribe(data => {
+          if (data == null)
+            this.isInBlackList = false
+          else {
+            this.isInBlackList = true
+            this.blackListPassMessage = data
+          }
+          console.log(this.blackListPassMessage);},
+                    error => this.errorMessage = <any>error);
+  }
+
+  containAllCharacters(pass: string) {
+    var res = specialChars.test(pass);
+    return res
+  }
+
+  containSpace(username: string) {
+    if(username.split('').includes(' '))
+      return true
+    return false
   }
 
 }

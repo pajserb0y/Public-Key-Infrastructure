@@ -57,12 +57,12 @@ public class User implements UserDetails {
 
 
     public User(UserDTO userDto) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         setId(userDto.getId());
         setEmail(userDto.getEmail());
         setFirstName(userDto.getFirstName());
-        setPassword(passwordEncoder.encode(userDto.getPassword()));
+        setPassword(userDto.getPassword());
         setLastName(userDto.getLastName());
     }
 

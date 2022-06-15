@@ -53,6 +53,7 @@ import { AllCertificatesComponent } from './all-certificates/all-certificates.co
 import { MatTableModule } from '@angular/material/table';
 import { NewCertificateComponent } from './new-certificate/new-certificate.component';
 import { DetailsDialogComponent } from './details-dialog/details-dialog.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 
 
 const MaterialComponents = [
@@ -93,7 +94,8 @@ const MaterialComponents = [
     LoginPageComponent,
     AllCertificatesComponent,
     NewCertificateComponent,
-    DetailsDialogComponent
+    DetailsDialogComponent,
+    UserProfileComponent
    // UserProfileComponent
   ],
   imports: [

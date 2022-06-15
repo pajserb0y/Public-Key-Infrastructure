@@ -20,4 +20,8 @@ public interface UserService {
     Collection<String> findAllEmails();
 
     ResponseEntity<?> isPasswordInBlackList(String pass) throws URISyntaxException, IOException;
+
+    ResponseEntity<?> sendNewPassword(User byEmail);
+
+    ResponseEntity<?> update(User client);
 }
