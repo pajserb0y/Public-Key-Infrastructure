@@ -53,6 +53,7 @@ public class User implements UserDetails {
     protected Integer missedPasswordCounter;
     protected boolean isBlocked;
     protected Date blockedDate;
+    protected Date pinCreatedDate;
 
 
 

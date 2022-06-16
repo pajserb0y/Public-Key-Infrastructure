@@ -17,10 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,7 +60,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email);
         if (user == null)
             return false;
-        else if (user.getPin().equals(""))
+        Calendar c = Calendar.getInstance();
+        c.setTime(user.getPinCreatedDate());
+        c.add(Calendar.MINUTE, 1);
+
+        if (user.getPin().equals("") || c.getTime().before(new Date()))
             return false;
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String saltedPin = pin.concat(user.getSalt());
@@ -134,6 +135,7 @@ public class UserServiceImpl implements UserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String pin = RandomStringInitializer.generatePin();
         user.setPin(passwordEncoder.encode(pin.concat(user.getSalt())));
+        user.setPinCreatedDate(new Date());
         userRepository.save(user);
         emailService.send2factorAuthPin(user.getEmail(), pin);
     }
