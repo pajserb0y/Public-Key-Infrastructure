@@ -1,6 +1,7 @@
 package com.example.pki.controller;
 
 import com.example.pki.model.ConfirmationToken;
+import com.example.pki.model.Role;
 import com.example.pki.model.User;
 import com.example.pki.model.dto.EmailDto;
 import com.example.pki.model.dto.UserCredentials;
@@ -8,6 +9,7 @@ import com.example.pki.model.dto.UserDTO;
 import com.example.pki.model.dto.UserTokenDTO;
 import com.example.pki.repository.ConfirmationTokenRepository;
 import com.example.pki.security.tokenUtils.JwtTokenUtils;
+import com.example.pki.service.EmailService;
 import com.example.pki.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +43,8 @@ public class AuthenticationController {
     private final JwtTokenUtils tokenUtils;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    @Autowired
+    EmailService emailService;
 
     @Autowired
     public AuthenticationController(JwtTokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService) {
@@ -191,6 +195,30 @@ public class AuthenticationController {
     @PostMapping(path = "/update")
     public ResponseEntity<?> updateUser(@RequestBody UserDTO client) {
         return userService.update(new User(client));
+    }
+
+    @GetMapping(path = "/sso/{username}")
+    public ResponseEntity<?> sendPasswordlessToken(@PathVariable String username) {
+        User user = userService.findByEmail(username);
+        if(user != null)
+            return emailService.sendPasswordless(user.getEmail(), tokenUtils.generateToken(username, null));
+
+        return new ResponseEntity<>("User with that username does not exist.", HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping(path = "/login/passwordless")
+    public String loginPaswordless(@RequestParam("token") String token) {
+        String username = tokenUtils.getUsernameFromToken(token);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = "";
+        User user = userService.findByEmail(username);
+        if(user != null)
+            jwt = tokenUtils.generateToken(user.getUsername(), user.getRole());
+
+        return jwt;
     }
 
     @PostMapping(path = "/2factorAuth/pin/send")

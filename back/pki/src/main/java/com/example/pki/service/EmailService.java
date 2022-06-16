@@ -64,6 +64,7 @@ public class EmailService {
         javaMailSender.send(mail);
     }
 
+    @Async
     public void send2factorAuthPin(String email, String pin) {
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(email);
@@ -72,5 +73,18 @@ public class EmailService {
         mail.setText("Your PIN is: " + pin);
 
         javaMailSender.send(mail);
+    }
+
+    @Async
+    public ResponseEntity<?> sendPasswordless(String email, String salt) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(email);
+        mail.setFrom(env.getProperty("spring.mail.username"));
+        mail.setSubject("Passwordless authentication");
+        mail.setText("In order to login click on this link: " +
+                "https://localhost:4100/passwordless?token=" + salt);
+
+        javaMailSender.send(mail);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

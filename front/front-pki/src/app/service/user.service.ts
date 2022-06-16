@@ -23,17 +23,22 @@ export class UserService {
   private _forgotPassword  = this._baseUrl + 'auth/newPassword';
   private _editClient  = this._baseUrl + 'auth/update';
   private _clientByUsername  = this._baseUrl + 'auth/email/';
-  private _sendPasswordless = this._baseUrl + 'auth/login';
+  private _sendPasswordless = this._baseUrl + 'auth/sso/';
   private _send2factor = this._baseUrl + 'auth/2factorAuth/pin/send';
+  private _loginPaswordless = this._baseUrl + 'auth/login/passwordless?token=';
   
   
   constructor(private _http: HttpClient) { }
+
  
+  loginPasswordless(token: any): Observable<any> {
+    return this._http.post(this._loginPaswordless + token, {},{responseType: 'text'})
+  } 
   
   sendPasswordless(email: string): Observable<any> {
-    const body=JSON.stringify(email);
-    console.log(body)
-    return this._http.post(this._sendPasswordless, body)
+    return this._http.get<any>(this._sendPasswordless + email)
+                           .pipe(tap(data =>  console.log('Iz service-a: ', data)),                         
+                                catchError(this.handleError)); 
   }
 
   send2factor(credentials: Credentials): Observable<any> {

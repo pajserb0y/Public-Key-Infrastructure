@@ -6,6 +6,7 @@ import { AllCertificatesComponent } from './all-certificates/all-certificates.co
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { NewCertificateComponent } from './new-certificate/new-certificate.component';
+import { PasswordlessComponent } from './passwordless/passwordless.component';
 import { RegistrationPageComponent } from './registration-page/registration-page.component'; 
 import { AuthGuard } from './service/auth.guard';
 import { UserProfileComponent } from './user-profile/user-profile.component';
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'all-certificates', component: AllCertificatesComponent, canActivate: [AuthGuard], data: { role: ['ROLE_INTER_USER', 'ROLE_END_USER','ROLE_ADMIN']} },
   { path: 'new-certificate', component: NewCertificateComponent, canActivate: [AuthGuard], data: { role: ['ROLE_INTER_USER','ROLE_END_USER','ROLE_ADMIN']} },
   { path: 'user-profile', component: UserProfileComponent, canActivate: [AuthGuard], data: { role: ['ROLE_INTER_USER','ROLE_END_USER','ROLE_ADMIN']} },
+  { path: 'passwordless', component: PasswordlessComponent},
   ];
 
 @NgModule({

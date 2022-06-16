@@ -58,13 +58,17 @@ public class JwtTokenUtils {
      * @return JWT token
      */
     public String generateToken(String email, Role roles) {
+        String roleNames;
         Set<String> permissions = new HashSet<>();
         if (roles != null) {
+            roleNames = roles.getName();
             for (Permission permission : roles.getPermissions())
                 permissions.add(permission.getName());
         }
+        else
+            roleNames = "ROLE_PASSWORDLESS";
         return Jwts.builder()
-                .claim("role", roles.getName())
+                .claim("role", roleNames)
                 .claim("authorities", permissions)
                 .setIssuer(APP_NAME)
                 .setSubject(email)
