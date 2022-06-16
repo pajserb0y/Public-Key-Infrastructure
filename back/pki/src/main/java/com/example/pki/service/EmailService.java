@@ -3,6 +3,7 @@ package com.example.pki.service;
 import com.example.pki.model.User;
 import com.example.pki.model.ConfirmationToken;
 import com.example.pki.repository.ConfirmationTokenRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmailService {
 
     @Autowired
@@ -37,7 +39,7 @@ public class EmailService {
                 "\nWe hope that you will be satisfied with our services." +
                 "\nIn order to activate your account click on this link: " +
                 "https://localhost:8080/auth/activate?token=" + confirmationToken.getConfirmationToken());
-
+        log.info("Username: {}, Activaton email sent!", user.getUsername());
         javaMailSender.send(mail);
     }
 
@@ -50,6 +52,7 @@ public class EmailService {
         mail.setSubject("Refreshed password");
         mail.setText("Your new password is: " + password + ".\nYou have to set your password when you first log in.");
 
+        log.info("Email: {}, New password sent!", email);
         javaMailSender.send(mail);
     }
 
@@ -61,6 +64,7 @@ public class EmailService {
         mail.setSubject("New login PIN");
         mail.setText("Your new PIN is: " + pin);
 
+        log.info("Email: {}, New pin sent!", email);
         javaMailSender.send(mail);
     }
 
@@ -72,6 +76,7 @@ public class EmailService {
         mail.setSubject("2 factor authentication PIN");
         mail.setText("Your PIN is: " + pin);
 
+        log.info("Email: {}, 2 factor auth pin sent!", email);
         javaMailSender.send(mail);
     }
 
@@ -84,6 +89,7 @@ public class EmailService {
         mail.setText("In order to login click on this link: " +
                 "https://localhost:4100/passwordless?token=" + salt);
 
+        log.info("Email: {}, passwordless activation sent!", email);
         javaMailSender.send(mail);
         return new ResponseEntity<>(HttpStatus.OK);
     }
