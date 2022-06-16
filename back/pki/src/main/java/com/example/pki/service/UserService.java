@@ -24,4 +24,6 @@ public interface UserService {
     ResponseEntity<?> sendNewPassword(User byEmail);
 
     ResponseEntity<?> update(User client);
+
+    void send2factorAuthPin(User user);
 }

@@ -21,6 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -60,15 +62,17 @@ public class AuthenticationController {
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getEmail(), authenticationRequest.getPassword().concat(salt)));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            refreshMissedPasswordCounter(authenticationRequest.getEmail());
-        } catch (AuthenticationException e) {
-            if(userService.isPinOk(authenticationRequest.getEmail(), authenticationRequest.getPin()))
-                SecurityContextHolder.getContext().setAuthentication(null);
+            if(userService.isPinOk(authenticationRequest.getEmail(), authenticationRequest.getPin())) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                refreshMissedPasswordCounter(authenticationRequest.getEmail());
+            }
             else {
                 increaseMissedPasswordCounter(authenticationRequest.getEmail());
-                return "Invalid username, password or pin.";
+                return "Invalid pin.";
             }
+        } catch (AuthenticationException e) {
+            increaseMissedPasswordCounter(authenticationRequest.getEmail());
+            return "Invalid username, password or pin.";
         }
 
         User user;
@@ -129,6 +133,7 @@ public class AuthenticationController {
         User user = userService.findByEmail(email);
         if(user != null) {
             user.setMissedPasswordCounter(0);
+            user.setPin("");
             userService.saveUser(user);
         }
     }
@@ -186,5 +191,16 @@ public class AuthenticationController {
     @PostMapping(path = "/update")
     public ResponseEntity<?> updateUser(@RequestBody UserDTO client) {
         return userService.update(new User(client));
+    }
+
+    @PostMapping(path = "/2factorAuth/pin/send")
+    public ResponseEntity<?> sendPinFor2Auth(@RequestBody UserCredentials authenticationRequest) {
+        User user = userService.findByEmail(authenticationRequest.getEmail());
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if(user != null && passwordEncoder.matches(authenticationRequest.getPassword().concat(user.getSalt()), user.getPassword())) {
+            userService.send2factorAuthPin(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

@@ -63,6 +63,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email);
         if (user == null)
             return false;
+        else if (user.getPin().equals(""))
+            return false;
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String saltedPin = pin.concat(user.getSalt());
         boolean match = passwordEncoder.matches(saltedPin, user.getPin());
@@ -125,5 +127,14 @@ public class UserServiceImpl implements UserService {
         }
         saveUser(clientInDb);
         return new ResponseEntity<>(clientInDb, HttpStatus.OK);
+    }
+
+    @Override
+    public void send2factorAuthPin(User user) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String pin = RandomStringInitializer.generatePin();
+        user.setPin(passwordEncoder.encode(pin.concat(user.getSalt())));
+        userRepository.save(user);
+        emailService.send2factorAuthPin(user.getEmail(), pin);
     }
 }

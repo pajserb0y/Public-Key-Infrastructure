@@ -64,4 +64,13 @@ public class EmailService {
         javaMailSender.send(mail);
     }
 
+    public void send2factorAuthPin(String email, String pin) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(email);
+        mail.setFrom(env.getProperty("spring.mail.username"));
+        mail.setSubject("2 factor authentication PIN");
+        mail.setText("Your PIN is: " + pin);
+
+        javaMailSender.send(mail);
+    }
 }
