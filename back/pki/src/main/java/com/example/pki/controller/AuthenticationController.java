@@ -225,9 +225,13 @@ public class AuthenticationController {
     public ResponseEntity<?> sendPinFor2Auth(@RequestBody UserCredentials authenticationRequest) {
         User user = userService.findByEmail(authenticationRequest.getEmail());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if(user != null && passwordEncoder.matches(authenticationRequest.getPassword().concat(user.getSalt()), user.getPassword())) {
-            userService.send2factorAuthPin(user);
-            return new ResponseEntity<>(HttpStatus.OK);
+        if(user != null) {
+            if(passwordEncoder.matches(authenticationRequest.getPassword().concat(user.getSalt()), user.getPassword())) {
+                userService.send2factorAuthPin(user);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            else
+                increaseMissedPasswordCounter(authenticationRequest.getEmail());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
