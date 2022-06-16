@@ -11,6 +11,7 @@ import com.example.pki.repository.ConfirmationTokenRepository;
 import com.example.pki.security.tokenUtils.JwtTokenUtils;
 import com.example.pki.service.EmailService;
 import com.example.pki.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -39,6 +41,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@Slf4j
 public class AuthenticationController {
     private final JwtTokenUtils tokenUtils;
     private final AuthenticationManager authenticationManager;
@@ -57,10 +60,12 @@ public class AuthenticationController {
 
 
     @PostMapping("/login")
-    public String login(@RequestBody UserCredentials authenticationRequest) {
+    public String login(@RequestBody UserCredentials authenticationRequest, HttpServletRequest request) {
         // Ukoliko kredencijali nisu ispravni, logovanje nece biti uspesno, desice se AuthenticationException
-        if(isUserBlocked(authenticationRequest.getEmail()))
+        if(isUserBlocked(authenticationRequest.getEmail())){
+            log.info("Ip: {}, email: {}, Account blocked", request.getRemoteAddr(), authenticationRequest.getEmail());
             return "Your account is currently blocked. Try next day again.";
+        }
         String salt = findSaltForUsername(authenticationRequest.getEmail());
         Authentication authentication = null;
         try {
@@ -72,10 +77,12 @@ public class AuthenticationController {
             }
             else {
                 increaseMissedPasswordCounter(authenticationRequest.getEmail());
+                log.warn("Ip: {}, email: {}, Invalid pin.", request.getRemoteAddr(), authenticationRequest.getEmail());
                 return "Invalid pin.";
             }
         } catch (AuthenticationException e) {
             increaseMissedPasswordCounter(authenticationRequest.getEmail());
+            log.warn("Ip: {}, email: {}, Invalid username, password or pin", request.getRemoteAddr(), authenticationRequest.getEmail());
             return "Invalid username, password or pin.";
         }
 
@@ -88,18 +95,24 @@ public class AuthenticationController {
             user.setForgotten(2);
             userService.saveUser(user);
         }
-        else if (user.getForgotten() == 2)
+        else if (user.getForgotten() == 2){
+            log.info("Ip: {}, email: {}, You did not changed password first time.Have to reset it again! ", request.getRemoteAddr(), authenticationRequest.getEmail());
             return "You did not changed password first time. If you want to log in, refresh again your password.";
+        }
         String jwt = tokenUtils.generateToken(user.getUsername(), user.getRole());
 
+        log.info("Ip: {}, email: {}, User successfully logged in! ", request.getRemoteAddr(), authenticationRequest.getEmail());
         return jwt;
     }
 
     @PostMapping(value="/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDto, BindingResult res) {
-        if(res.hasErrors())
+    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDto, BindingResult res, HttpServletRequest request) {
+        if(res.hasErrors()){
+            log.warn("Ip: {}, Fields for new client not valid!", request.getRemoteAddr());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return userService.save(userDto);
+
+        }
+        return userService.save(userDto, request);
     }
 
     private boolean isUserBlocked(String email) {
@@ -108,8 +121,10 @@ public class AuthenticationController {
             Calendar c = Calendar.getInstance();
             c.setTime(user.getBlockedDate());
             c.add(Calendar.DATE, 1);
-            if (user.isBlocked() && c.getTime().after(new Date()))
+            if (user.isBlocked() && c.getTime().after(new Date())){
+                log.info("Email: {}, User is blocked");
                 return true;
+            }
             else if (user.isBlocked() && c.getTime().before(new Date())) {
                 user.setBlocked(false);
                 user.setMissedPasswordCounter(0);
@@ -162,11 +177,12 @@ public class AuthenticationController {
     }
 
     @GetMapping(path = "/activate")
-    public ResponseEntity<?> activateClientAccount(WebRequest request, @RequestParam("token") String hashCode) {
+    public ResponseEntity<?> activateClientAccount(HttpServletRequest request, @RequestParam("token") String hashCode) {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(hashCode);
         Long secs = (token.getCreatedDate().getTime() - new Date().getTime())/1000;
         User verificationClient = token.getUser();
         if (verificationClient == null || verificationClient.isActivated() || secs > 3600 ) {
+            log.warn("Ip: {}, username: , Bad activation request sent!", request.getRemoteAddr(), verificationClient.getUsername());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -175,13 +191,17 @@ public class AuthenticationController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "https://localhost:4100");
+        log.info("Ip: {}, username: , Activation request sent successfully!", request.getRemoteAddr(), verificationClient.getUsername());
         return new ResponseEntity<String>(headers, HttpStatus.OK);
     }
 
     @PutMapping(path = "/newPassword")
-    public ResponseEntity<?> sendNewPassword(@RequestBody EmailDto dto) {
-        if(userService.findByEmail(dto.getEmail()) != null)
-            return userService.sendNewPassword(userService.findByEmail(dto.getEmail()));
+    public ResponseEntity<?> sendNewPassword(@RequestBody EmailDto dto, HttpServletRequest request) {
+        if(userService.findByEmail(dto.getEmail()) != null){
+            log.info("Email: {}, Sent new password successfully", dto.getEmail());
+            return userService.sendNewPassword(userService.findByEmail(dto.getEmail()), request);
+        }
+        log.warn("Email: {}, Failed to send new password", dto.getEmail());
         return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
     }
 
@@ -193,21 +213,23 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAuthority('updateUser')")
     @PostMapping(path = "/update")
-    public ResponseEntity<?> updateUser(@RequestBody UserDTO client) {
-        return userService.update(new User(client));
+    public ResponseEntity<?> updateUser(@RequestBody UserDTO client, HttpServletRequest request) {
+        return userService.update(new User(client), request);
     }
 
     @GetMapping(path = "/sso/{username}")
     public ResponseEntity<?> sendPasswordlessToken(@PathVariable String username) {
         User user = userService.findByEmail(username);
-        if(user != null)
+        if(user != null){
             return emailService.sendPasswordless(user.getEmail(), tokenUtils.generateToken(username, null));
+
+        }
 
         return new ResponseEntity<>("User with that username does not exist.", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(path = "/login/passwordless")
-    public String loginPaswordless(@RequestParam("token") String token) {
+    public String loginPaswordless(@RequestParam("token") String token, HttpServletRequest request) {
         String username = tokenUtils.getUsernameFromToken(token);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null);
@@ -215,24 +237,22 @@ public class AuthenticationController {
 
         String jwt = "";
         User user = userService.findByEmail(username);
-        if(user != null)
+        if(user != null){
+            log.info("Ip: {}, Username: {}, User logged in without password!",request.getRemoteAddr(), username);
             jwt = tokenUtils.generateToken(user.getUsername(), user.getRole());
-
+        }
         return jwt;
     }
 
     @PostMapping(path = "/2factorAuth/pin/send")
-    public ResponseEntity<?> sendPinFor2Auth(@RequestBody UserCredentials authenticationRequest) {
+    public ResponseEntity<?> sendPinFor2Auth(@RequestBody UserCredentials authenticationRequest, HttpServletRequest request) {
         User user = userService.findByEmail(authenticationRequest.getEmail());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if(user != null) {
-            if(passwordEncoder.matches(authenticationRequest.getPassword().concat(user.getSalt()), user.getPassword())) {
-                userService.send2factorAuthPin(user);
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            else
-                increaseMissedPasswordCounter(authenticationRequest.getEmail());
+        if(user != null && passwordEncoder.matches(authenticationRequest.getPassword().concat(user.getSalt()), user.getPassword())) {
+            userService.send2factorAuthPin(user, request);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
+        log.warn("Ip: {}, username: {}, 2 factora auth did not succeeded!", request.getRemoteAddr(), user.getUsername());
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

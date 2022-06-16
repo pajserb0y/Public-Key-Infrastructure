@@ -13,6 +13,7 @@ import com.example.pki.model.dto.KeyUsageDTO;
 import com.example.pki.repository.CertificateRepository;
 import com.example.pki.repository.UserRepository;
 import com.example.pki.util.Base64Utility;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -35,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 public class CertificateServiceImpl implements CertificateService {
     public static final String KEYSTORE_JKS_FILE_NAME = "keystore.jks";
     public static final String JKS_PASS = "pass";
@@ -83,7 +85,7 @@ public class CertificateServiceImpl implements CertificateService {
                     certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias()), userRepository.findByEmail(certificateDataDTO.getE()), usage));
 
         //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
-
+        log.info("Issued certificate!");
     }
     @Override
     public List<CertificateDTO> getAll() {
@@ -173,6 +175,7 @@ public class CertificateServiceImpl implements CertificateService {
         // - podatke o vlasniku sertifikata koji izdaje nov sertifikat
         IssuerData issuerData = new IssuerData(issuerKey, null);
         issuerData.setX500name(builder.build());
+        log.info("Issuer data created!");
         return issuerData;
     }
 
@@ -231,9 +234,9 @@ public class CertificateServiceImpl implements CertificateService {
             keyGen.initialize(2048, random);
             return keyGen.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error("No such algorithm", e);
         } catch (NoSuchProviderException e) {
-            e.printStackTrace();
+            log.error("No such provider", e);
         }
         return null;
     }

@@ -1,7 +1,10 @@
 package com.example.pki.service;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 
+@Slf4j
 public class RandomStringInitializer {
 
     public static String generateAlphaNumericString(int n)
@@ -33,6 +36,8 @@ public class RandomStringInitializer {
 
     public static String generatePin() {
         Random rand = new Random();
+
+        log.debug("Pin generated!");
         return Integer.toString(rand.nextInt(9999 - 1000) + 1000);
     }
 }
