@@ -9,8 +9,11 @@ import com.example.pki.model.data.CertificateDataDTO;
 import com.example.pki.model.data.IssuerData;
 import com.example.pki.model.data.SubjectData;
 import com.example.pki.model.dto.CertificateDTO;
+import com.example.pki.model.dto.KeyUsageDTO;
 import com.example.pki.repository.CertificateRepository;
+import com.example.pki.repository.UserRepository;
 import com.example.pki.util.Base64Utility;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.cert.Certificate;
 
@@ -32,15 +36,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 public class CertificateServiceImpl implements CertificateService {
     public static final String KEYSTORE_JKS_FILE_NAME = "keystore.jks";
     public static final String JKS_PASS = "pass";
     @Autowired
     private CertificateRepository certificateRepository;
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Override
-    public void issueCertificate(CertificateDataDTO certificateDataDTO) {
+    public void issueCertificate(CertificateDataDTO certificateDataDTO, KeyUsageDTO keyUsage) {
         certificateDataDTO.setIssuerAlias(certificateRepository.getAliasForCertificate(certificateDataDTO.getIssuerAlias()));
         KeyStoreReader reader = new KeyStoreReader();
         KeyPair keyPairIssuer = generateKeyPair();
@@ -62,32 +69,33 @@ public class CertificateServiceImpl implements CertificateService {
         writer.saveKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
 
         //Database
-        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+//        SimpleDateFormat iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
+        KeyUsageDTO usage = new KeyUsageDTO(keyUsage.getId(), keyUsage.isCertificateSigning(), keyUsage.isCrlSign(), keyUsage.isDataEncipherment(), keyUsage.isDecipherOnly(),
+                keyUsage.isDigitalSignature(), keyUsage.isEncipherOnly(), keyUsage.isKeyAgreement(), keyUsage.isKeyEncipherment(), keyUsage.isNonRepudiation());
 
         if (certificateDataDTO.getIssuerAlias() == null)   //root
             certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                     certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
                     certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false,
-                    certificateDataDTO.getType(), null));
+                    certificateDataDTO.getType(), null, userRepository.findByEmail(certificateDataDTO.getE()), usage));
         else    //sub
             certificateRepository.save(new CertificateInDatabase(null, subjectData.getSerialNumber(), certificateDataDTO.getCn(), certificateDataDTO.getOn(), certificateDataDTO.getOu(),
                     certificateDataDTO.getSurname(), certificateDataDTO.getGivenName(), certificateDataDTO.getO(), certificateDataDTO.getC(), certificateDataDTO.getE(), certificateDataDTO.getS(),
                     certificateDataDTO.getSubjectAlias(), certificateDataDTO.getStartDate(), certificateDataDTO.getEndDate(), certificateDataDTO.getKeyPass(), false, certificateDataDTO.getType(),
-                    certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias())));
+                    certificateRepository.findBySubjectAlias(certificateDataDTO.getIssuerAlias()), userRepository.findByEmail(certificateDataDTO.getE()), usage));
 
         //Moguce je proveriti da li je digitalan potpis sertifikata ispravan, upotrebom javnog kljuca izdavaoca
-
+        log.info("Issued certificate!");
     }
     @Override
     public List<CertificateDTO> getAll() {
-        return CertificateAdapter.convertToCertDTOList(certificateRepository.findAll());
+        return CertificateAdapter.convertToCertDTOList(certificateRepository.findAllNotRevoked());
     }
 
     @Override
-    public void revoke(String serialNumber) throws KeyStoreException, CertificateEncodingException {
+    @Transactional
+    public void revoke(String alias) throws KeyStoreException, CertificateEncodingException {
         KeyStoreWriter writer = new KeyStoreWriter();
-
-        String alias = certificateRepository.getAliasForCertificate(serialNumber);
 
         writer.loadKeyStore(KEYSTORE_JKS_FILE_NAME, JKS_PASS.toCharArray());
         List<Certificate> subCerts = writer.findAllSubs(alias);
@@ -109,7 +117,10 @@ public class CertificateServiceImpl implements CertificateService {
         List<CertificateInDatabase> validCerts = new ArrayList<>();
         KeyStoreReader reader = new KeyStoreReader();
         for(CertificateInDatabase cert : certificateRepository.findAllCAs()) {
-            if(reader.isValid((X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias())))
+            X509Certificate certificate = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias());
+            if(certificate == null)
+                break;
+            if(reader.isValid(certificate))
                 validCerts.add(cert);
         }
 
@@ -122,10 +133,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Resource getCertificateToDownload(CertificateDTO certToDownload) {
+    public Resource getCertificateToDownload(String serNum) {
         try {
             KeyStoreReader reader = new KeyStoreReader();
-            X509Certificate cert = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, certificateRepository.getAliasFromSerialNumber(certToDownload.getSerialNumber()));
+            X509Certificate cert = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, certificateRepository.getAliasFromSerialNumber(serNum));
             String digitalSignature = Base64Utility.encode(cert.getEncoded());
 
             return new ByteArrayResource(digitalSignature.getBytes());
@@ -164,6 +175,7 @@ public class CertificateServiceImpl implements CertificateService {
         // - podatke o vlasniku sertifikata koji izdaje nov sertifikat
         IssuerData issuerData = new IssuerData(issuerKey, null);
         issuerData.setX500name(builder.build());
+        log.info("Issuer data created!");
         return issuerData;
     }
 
@@ -222,9 +234,9 @@ public class CertificateServiceImpl implements CertificateService {
             keyGen.initialize(2048, random);
             return keyGen.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error("No such algorithm", e);
         } catch (NoSuchProviderException e) {
-            e.printStackTrace();
+            log.error("No such provider", e);
         }
         return null;
     }

@@ -31,6 +31,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import { MatCarouselModule } from 'ng-mat-carousel';
 import {MatSortModule} from '@angular/material/sort';
 import {Sort} from '@angular/material/sort';
+import { FileSaverModule } from 'ngx-filesaver';
 
 
 import { HeaderComponent } from './header/header.component';
@@ -52,6 +53,8 @@ import { AllCertificatesComponent } from './all-certificates/all-certificates.co
 import { MatTableModule } from '@angular/material/table';
 import { NewCertificateComponent } from './new-certificate/new-certificate.component';
 import { DetailsDialogComponent } from './details-dialog/details-dialog.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { PasswordlessComponent } from './passwordless/passwordless.component';
 
 
 const MaterialComponents = [
@@ -92,7 +95,9 @@ const MaterialComponents = [
     LoginPageComponent,
     AllCertificatesComponent,
     NewCertificateComponent,
-    DetailsDialogComponent
+    DetailsDialogComponent,
+    UserProfileComponent,
+    PasswordlessComponent
    // UserProfileComponent
   ],
   imports: [
@@ -105,6 +110,7 @@ const MaterialComponents = [
     MatButtonModule,
     ReactiveFormsModule,
     CommonModule,
+    FileSaverModule,
 
     ToastrModule.forRoot({
       timeOut: 5000,

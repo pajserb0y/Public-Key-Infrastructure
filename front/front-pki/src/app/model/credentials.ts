@@ -1,4 +1,5 @@
 export interface Credentials {
     email : string,
-    password : string
+    password : string,
+    pin: number|string
   }

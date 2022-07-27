@@ -50,10 +50,13 @@ public class CertificateAdapter {
         dto.setStartDate(cert.getStartDate());
         dto.setEndDate(cert.getEndDate());
 
-        KeyStoreReader reader = new KeyStoreReader();
-        X509Certificate c = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias());
-        final boolean[] keyUsage = c.getKeyUsage();
-        dto.setKeyUsage(adaptKeyUsage(keyUsage));
+//        KeyStoreReader reader = new KeyStoreReader();
+//        X509Certificate c = (X509Certificate) reader.readCertificate(KEYSTORE_JKS_FILE_NAME, JKS_PASS, cert.getSubjectAlias());
+//        if(c != null) {
+//            final boolean[] keyUsage = c.getKeyUsage();
+//            dto.setKeyUsage(adaptKeyUsage(keyUsage));
+//        }
+        dto.setKeyUsage(cert.getUsages());
         dto.setCertificateType(cert.getType());
 
         return dto;

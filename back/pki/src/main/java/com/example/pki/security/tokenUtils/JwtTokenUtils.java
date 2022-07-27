@@ -1,5 +1,6 @@
 package com.example.pki.security.tokenUtils;
 
+import com.example.pki.model.Permission;
 import com.example.pki.model.Role;
 import com.example.pki.model.User;
 import io.jsonwebtoken.Claims;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 // Utility klasa za rad sa JSON Web Tokenima
 @Component
@@ -55,8 +58,18 @@ public class JwtTokenUtils {
      * @return JWT token
      */
     public String generateToken(String email, Role roles) {
+        String roleNames;
+        Set<String> permissions = new HashSet<>();
+        if (roles != null) {
+            roleNames = roles.getName();
+            for (Permission permission : roles.getPermissions())
+                permissions.add(permission.getName());
+        }
+        else
+            roleNames = "ROLE_PASSWORDLESS";
         return Jwts.builder()
-                .claim("role", roles.getName())
+                .claim("role", roleNames)
+                .claim("authorities", permissions)
                 .setIssuer(APP_NAME)
                 .setSubject(email)
                 .setAudience(generateAudience())

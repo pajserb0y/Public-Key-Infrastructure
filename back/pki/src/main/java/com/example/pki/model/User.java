@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -40,26 +39,43 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-//    @Enumerated(EnumType.ORDINAL)
-//    private Role role;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<CertificateInDatabase> certifications = new HashSet<>();
+
+    protected boolean isActivated = true;
+    protected Integer forgotten;
+    protected String pin;
+    protected String salt;
+    protected Integer missedPasswordCounter;
+    protected boolean isBlocked;
+    protected Date blockedDate;
+    protected Date pinCreatedDate;
+
+
+
     public User(UserDTO userDto) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         setId(userDto.getId());
         setEmail(userDto.getEmail());
         setFirstName(userDto.getFirstName());
-        setPassword(passwordEncoder.encode(userDto.getPassword()));
+        setPassword(userDto.getPassword());
         setLastName(userDto.getLastName());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList( this.role);
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Role r = this.role;
+        authorities.add(new SimpleGrantedAuthority(r.name));
+        for(Permission p : r.getPermissions())
+            authorities.add(new SimpleGrantedAuthority(p.name));
+
+        return authorities;
     }
 
     @Override
@@ -89,6 +105,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isActivated;
     }
 }

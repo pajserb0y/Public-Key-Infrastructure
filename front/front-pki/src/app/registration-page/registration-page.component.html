@@ -41,9 +41,12 @@
               </mat-form-field>
             </div>       
             <div>
-              <mat-form-field hintLabel="Between 6 and 16 characters" appearance="fill">
+              <mat-form-field hintLabel="Between 8 and 20 characters, at least 1 letter, 1 number, 1 special character" appearance="fill">
                 <mat-label>Password</mat-label>
-                <input matInput type="password" name="password" id="password" minlength="6" maxlength="16" [(ngModel)]="user.password" required>
+                <input matInput type="password" name="password" id="password" minlength="8" maxlength="20" [(ngModel)]="user.password" required (change)="checkPass()">
+                <mat-hint *ngIf="isInBlackList">{{blackListPassMessage}}</mat-hint>
+                <mat-hint *ngIf="containSpace(user.password) === true" style="color:red;">Password can not contain space.</mat-hint>
+                <mat-hint *ngIf="containAllCharacters(user.password) === false" style="color:red;">Password must contain at least 1 letter, 1 number and 1 special character</mat-hint>
               </mat-form-field>
             </div>
             <div>
@@ -51,11 +54,12 @@
                 <mat-label>Confirm password</mat-label>
                 <input matInput type="password" name="repassword" [(ngModel)]="repassword" required>
                 <mat-hint *ngIf="user.password == ''">Required</mat-hint>
+                <mat-hint *ngIf="user.password !== repassword">It has to match with password</mat-hint>
               </mat-form-field>
             </div>
               <div>
                 <button mat-button matStepperPrevious>Back</button>
-                <button mat-raised-button color="accent" (click)="submit()" [disabled]="!(registerForm.valid && user.password === repassword)" >Submit</button>
+                <button mat-raised-button color="accent" (click)="submit()" [disabled]="!(registerForm.valid && user.password === repassword && containAllCharacters(user.password))" >Submit</button>
               </div>
           </mat-step>
     </mat-stepper>
